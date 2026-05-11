@@ -1,334 +1,112 @@
-import type {
-  Boundary,
-  Check,
-  Claim,
-  Domain,
-  RelevanceStatus,
-  UPLDecision,
-  UPLJudgment,
-  Witness,
-  WitnessKind,
-} from './judgment';
+import type { UPLDecision, UPLJudgment, Witness } from './judgment';
 
-const ABSOLUTE_PREFIXES = ['/Users/', 'file:///', '/'];
-
-function isNonEmptyString(value: unknown): value is string {
-  return typeof value === 'string' && value.trim().length > 0;
+function hasSameDomainWitness(witnesses: Witness[], domain: string): boolean {
+  return witnesses.some((witness) => witness.domain === domain);
 }
 
-function isRelativeArtifactRef(value: string | undefined): boolean {
-  if (value === undefined) {
-    return true;
-  }
-  return !ABSOLUTE_PREFIXES.some((prefix) => value.startsWith(prefix));
-}
-
-function hasBoundaryShape(boundary: Boundary | undefined): boundary is Boundary {
-  return Boolean(
-    boundary &&
-      isNonEmptyString(boundary.id) &&
-      isNonEmptyString(boundary.domain) &&
-      Array.isArray(boundary.includes) &&
-      Array.isArray(boundary.excludes),
-  );
-}
-
-function hasClaimShape(claim: Claim | undefined): claim is Claim {
-  return Boolean(
-    claim &&
-      isNonEmptyString(claim.id) &&
-      isNonEmptyString(claim.domain) &&
-      isNonEmptyString(claim.kind) &&
-      isNonEmptyString(claim.text),
-  );
-}
-
-function boundaryContains(claimBoundary: Boundary, witnessBoundary: Boundary): boolean {
-  if (claimBoundary.domain !== witnessBoundary.domain) {
-    return false;
-  }
-
-  const witnessIncludes = new Set(witnessBoundary.includes);
-  const witnessExcludes = new Set(witnessBoundary.excludes);
-
-  const missingIncludes = claimBoundary.includes.some((item) => !witnessIncludes.has(item));
-  if (missingIncludes) {
-    return false;
-  }
-
-  const conflictingExcludes = claimBoundary.excludes.some((item) => witnessIncludes.has(item));
-  if (conflictingExcludes) {
-    return false;
-  }
-
-  const witnessBlocksClaim = claimBoundary.includes.some((item) => witnessExcludes.has(item));
-  return !witnessBlocksClaim;
-}
-
-function witnessKinds(witnesses: Witness[]): Set<WitnessKind> {
-  return new Set(witnesses.map((witness) => witness.kind));
-}
-
-function witnessDomains(witnesses: Witness[]): Set<Domain> {
-  return new Set(witnesses.map((witness) => witness.domain));
-}
-
-function domainCompatible(claim: Claim, witnesses: Witness[]): boolean {
-  const domains = witnessDomains(witnesses);
-
-  if (claim.domain === 'execution') {
-    return domains.has('execution');
-  }
-
-  if (claim.domain === 'proof') {
-    return domains.has('proof') || domains.has('execution');
-  }
-
-  if (claim.domain === 'bridge') {
-    return domains.has('bridge') || (domains.has('execution') && domains.has('semantic'));
-  }
-
-  if (claim.domain === 'semantic') {
-    return domains.has('semantic') || domains.has('bridge');
-  }
-
-  return false;
-}
-
-function relevanceForKinds(claim: Claim, kinds: Set<WitnessKind>, check?: Check): RelevanceStatus | undefined {
-  if (claim.kind === 'relevance') {
-    if (kinds.has('trace') && kinds.has('mapping') && check?.result === 'pass') {
-      return 'directly_claim_bearing';
-    }
-    if (kinds.has('trace') && kinds.has('mapping')) {
-      return 'candidate_relevance';
-    }
-    if (kinds.has('trace')) {
-      return 'incomplete_relevance';
-    }
-    return 'orthogonal';
-  }
-
-  if (claim.kind === 'semantic_output') {
-    if (kinds.has('trace') && kinds.has('mapping') && kinds.has('contract') && check?.result === 'pass') {
-      return 'directly_claim_bearing';
-    }
-    if (kinds.has('trace') && (kinds.has('mapping') || kinds.has('contract'))) {
-      return 'incomplete_relevance';
-    }
-    return 'orthogonal';
-  }
-
-  if (claim.kind === 'effect') {
-    if (kinds.has('baseline') && (kinds.has('counterfactual') || kinds.has('effect_check')) && check?.result === 'pass') {
-      return 'directly_claim_bearing';
-    }
-    if (kinds.has('baseline')) {
-      return 'candidate_relevance';
-    }
-    return 'orthogonal';
-  }
-
-  return undefined;
-}
-
-function supportsClaimKind(claim: Claim, kinds: Set<WitnessKind>): boolean {
-  if (claim.kind === 'descriptive') {
-    return kinds.has('trace') || kinds.has('baseline') || kinds.has('check');
-  }
-
-  if (claim.kind === 'relevance') {
-    return kinds.has('trace') && kinds.has('mapping');
-  }
-
-  if (claim.kind === 'semantic_output') {
-    return kinds.has('trace') && kinds.has('mapping') && kinds.has('contract');
-  }
-
-  if (claim.kind === 'effect') {
-    return kinds.has('baseline') && (kinds.has('counterfactual') || kinds.has('effect_check'));
-  }
-
-  return false;
-}
-
-function validateInput(judgment: UPLJudgment): string[] {
-  const failures: string[] = [];
-
-  if (!Array.isArray(judgment.gamma)) {
-    failures.push('gamma must be an array');
-  }
-
-  if (!hasClaimShape(judgment.claim)) {
-    failures.push('claim is missing required fields');
-  }
-
-  if (!hasBoundaryShape(judgment.boundary)) {
-    failures.push('boundary is missing required fields');
-  }
-
-  if (!Array.isArray(judgment.witnesses) || judgment.witnesses.length === 0) {
-    failures.push('at least one witness is required');
-  }
-
-  for (const witness of judgment.witnesses ?? []) {
-    if (!isNonEmptyString(witness.id)) {
-      failures.push('witness.id is required');
-    }
-    if (!isNonEmptyString(witness.source)) {
-      failures.push(`witness ${witness.id || '<unknown>'} is missing source`);
-    }
-    if (!hasBoundaryShape(witness.boundary)) {
-      failures.push(`witness ${witness.id || '<unknown>'} is missing boundary`);
-    }
-    if (!isRelativeArtifactRef(witness.artifactRef)) {
-      failures.push(`witness ${witness.id || '<unknown>'} has non-relative artifactRef`);
-    }
-  }
-
-  if (judgment.check) {
-    if (!isNonEmptyString(judgment.check.id)) {
-      failures.push('check.id is required when check is present');
-    }
-    if (!isRelativeArtifactRef(judgment.check.artifactRef)) {
-      failures.push('check.artifactRef must be relative');
-    }
-  }
-
-  return failures;
-}
-
-function mergeBoundary(claimBoundary: Boundary): Boundary {
-  return {
-    id: claimBoundary.id,
-    domain: claimBoundary.domain,
-    includes: [...claimBoundary.includes],
-    excludes: [...claimBoundary.excludes],
-  };
+function hasWitnessKind(witnesses: Witness[], kind: string): boolean {
+  return witnesses.some((witness) => witness.kind === kind);
 }
 
 export function adjudicate(j: UPLJudgment): UPLDecision {
-  const reasons: string[] = [];
   const limits: string[] = [];
 
   if (j.assertedStatus !== undefined) {
     limits.push('assertedStatus was not trusted as evidence');
   }
 
-  const failures = validateInput(j);
-  if (failures.length > 0) {
-    return {
-      admissibility: 'reject',
-      status: 'incomplete',
-      reasons: failures,
-      limits,
-    };
-  }
+  limits.push('does not verify check artifact authenticity');
 
-  const claim = j.claim;
-  const boundary = j.boundary;
-  const witnesses = j.witnesses;
-  const check = j.check;
-  const kinds = witnessKinds(witnesses);
-  const relevance = relevanceForKinds(claim, kinds, check);
-
-  if (!domainCompatible(claim, witnesses)) {
-    reasons.push('witness domains do not bear the claim domain');
+  // rule 1: no witnesses -> reject unsupported
+  if (j.witnesses.length === 0) {
     return {
       admissibility: 'reject',
       status: 'unsupported',
-      relevance: relevance ?? 'orthogonal',
-      reasons,
+      reasons: ['no witnesses were provided'],
       limits,
-      derivedBoundary: mergeBoundary(boundary),
     };
   }
 
-  const inBoundary = witnesses.every((witness) => boundaryContains(boundary, witness.boundary));
-  if (!inBoundary) {
-    reasons.push('at least one witness boundary does not contain the claim boundary');
+  // rule 2: boundary domain mismatch -> reject out_of_boundary
+  if (j.claim.kind !== 'effect' && j.boundary.domain !== j.claim.domain) {
     return {
       admissibility: 'reject',
       status: 'out_of_boundary',
-      relevance: relevance ?? 'out_of_boundary',
-      reasons,
+      reasons: ['boundary domain does not match claim domain'],
       limits,
-      derivedBoundary: mergeBoundary(boundary),
+      derivedBoundary: j.boundary,
     };
   }
 
-  if (!supportsClaimKind(claim, kinds)) {
-    reasons.push('the available witness kinds do not support this claim kind');
+  // rule 3: descriptive + no same-domain witness -> reject out_of_boundary
+  if (j.claim.kind === 'descriptive' && !hasSameDomainWitness(j.witnesses, j.claim.domain)) {
     return {
       admissibility: 'reject',
-      status: claim.kind === 'descriptive' ? 'unsupported' : 'incomplete',
-      relevance: relevance ?? 'orthogonal',
-      reasons,
+      status: 'out_of_boundary',
+      reasons: ['descriptive claim has no same-domain witness'],
       limits,
-      derivedBoundary: mergeBoundary(boundary),
+      derivedBoundary: j.boundary,
     };
   }
 
-  if (!check) {
-    if (claim.kind === 'descriptive') {
-      reasons.push('descriptive claim is supported by bounded witness presence');
-      limits.push('no check artifact was provided');
-      return {
-        admissibility: 'admit',
-        status: 'witnessed',
-        reasons,
-        limits,
-        derivedBoundary: mergeBoundary(boundary),
-      };
-    }
+  // rule 4: effect + missing baseline or counterfactual -> reject incomplete
+  if (
+    j.claim.kind === 'effect' &&
+    (!hasWitnessKind(j.witnesses, 'baseline') || !hasWitnessKind(j.witnesses, 'counterfactual'))
+  ) {
+    return {
+      admissibility: 'reject',
+      status: 'incomplete',
+      reasons: ['effect claim requires both baseline and counterfactual witnesses'],
+      limits,
+      derivedBoundary: j.boundary,
+    };
+  }
 
-    reasons.push('a check artifact is still required for this claim kind');
+  // rule 5: strong claim + no check -> pending pending_check
+  if (
+    (j.claim.kind === 'relevance' ||
+      j.claim.kind === 'semantic_output' ||
+      j.claim.kind === 'effect') &&
+    !j.check
+  ) {
     return {
       admissibility: 'pending',
       status: 'pending_check',
-      relevance: relevance ?? 'candidate_relevance',
-      reasons,
+      reasons: ['strong claim requires a check artifact'],
       limits,
-      derivedBoundary: mergeBoundary(boundary),
+      derivedBoundary: j.boundary,
     };
   }
 
-  if (check.result === 'pending' || check.result === undefined) {
-    reasons.push('check artifact exists but has not completed');
+  // rule 6: check result pending -> pending pending_check
+  if (j.check && (j.check.result === 'pending' || j.check.result === undefined)) {
     return {
       admissibility: 'pending',
       status: 'pending_check',
-      relevance: relevance ?? 'candidate_relevance',
-      reasons,
+      reasons: ['check result is pending'],
       limits,
-      derivedBoundary: mergeBoundary(boundary),
+      derivedBoundary: j.boundary,
     };
   }
 
-  if (check.result === 'fail') {
-    reasons.push('the provided check failed to support the claim inside the boundary');
-    limits.push('failed(K) does not imply checked(not K)');
+  // rule 7: check result fail -> reject failed
+  if (j.check && j.check.result === 'fail') {
     return {
       admissibility: 'reject',
       status: 'failed',
-      relevance,
-      reasons,
+      reasons: ['check failed to support the claim'],
       limits,
-      derivedBoundary: mergeBoundary(boundary),
+      derivedBoundary: j.boundary,
     };
   }
 
-  reasons.push('the provided witness and check support the bounded candidate claim');
-  if (claim.kind !== 'descriptive') {
-    limits.push('support is bounded to the stated claim boundary');
-  }
-
+  // rule 8: otherwise -> admit, checked if pass else witnessed
   return {
     admissibility: 'admit',
-    status: 'checked',
-    relevance,
-    reasons,
+    status: j.check?.result === 'pass' ? 'checked' : 'witnessed',
+    reasons: ['candidate claim is admissible within the stated boundary'],
     limits,
-    derivedBoundary: mergeBoundary(boundary),
+    derivedBoundary: j.boundary,
   };
 }

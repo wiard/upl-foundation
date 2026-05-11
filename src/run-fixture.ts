@@ -14,3 +14,5 @@ console.log(
     2,
   ),
 );
+
+process.exit(decision.admissibility === 'admit' ? 0 : 1);

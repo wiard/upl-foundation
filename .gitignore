@@ -1,2 +1,8 @@
 node_modules/
 dist/
+__pycache__/
+*.pyc
+.DS_Store
+demo_06/*.pt
+venv/
+.venv/

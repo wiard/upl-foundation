@@ -1,0 +1,110 @@
+\begin{thebibliography}{16}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Cover and Thomas(2006)]{cover2006}
+Thomas~M. Cover and Joy~A. Thomas.
+\newblock \emph{Elements of Information Theory}.
+\newblock Wiley-Interscience, 2nd edition, 2006.
+
+\bibitem[Fano(1961)]{fano1961}
+Robert~M. Fano.
+\newblock Transmission of information: A statistical theory of communications.
+\newblock \emph{MIT Press}, 1961.
+
+\bibitem[Hendrycks et~al.(2021)Hendrycks, Carlini, Schulman, and
+  Steinhardt]{hendrycks2021}
+Dan Hendrycks, Nicholas Carlini, John Schulman, and Jacob Steinhardt.
+\newblock Unsolved problems in {ML} safety, 2021.
+
+\bibitem[Hooker(2020)]{hooker2020}
+Sara Hooker.
+\newblock The hardware lottery, 2020.
+
+\bibitem[Kim et~al.(2014)Kim, Daly, Kim, Fallin, Lee, Lee, Wilkerson, Lai, and
+  Mutlu]{kim2014}
+Yoongu Kim, Ross Daly, Jeremie Kim, Chris Fallin, Ji~Hye Lee, Donghyuk Lee,
+  Chris Wilkerson, Konrad Lai, and Onur Mutlu.
+\newblock Flipping bits in memory without accessing them: An experimental study
+  of {DRAM} disturbance errors.
+\newblock In \emph{International Symposium on Computer Architecture (ISCA)},
+  2014.
+
+\bibitem[Kocher et~al.(2019)Kocher, Horn, Fogh, Genkin, Gruss, Haas, Hamburg,
+  Lipp, Mangard, Prescher, Schwarz, and Yarom]{kocher2019}
+Paul Kocher, Jann Horn, Anders Fogh, Daniel Genkin, Daniel Gruss, Werner Haas,
+  Mike Hamburg, Moritz Lipp, Stefan Mangard, Thomas Prescher, Michael Schwarz,
+  and Yuval Yarom.
+\newblock Spectre attacks: Exploiting speculative execution.
+\newblock In \emph{IEEE Symposium on Security and Privacy}, 2019.
+
+\bibitem[Lipp et~al.(2018)Lipp, Schwarz, Gruss, Prescher, Haas, Fogh, Horn,
+  Mangard, Kocher, Genkin, Yarom, and Hamburg]{lipp2018}
+Moritz Lipp, Michael Schwarz, Daniel Gruss, Thomas Prescher, Werner Haas,
+  Anders Fogh, Jann Horn, Stefan Mangard, Paul Kocher, Daniel Genkin, Yuval
+  Yarom, and Mike Hamburg.
+\newblock Meltdown: Reading kernel memory from user space.
+\newblock In \emph{USENIX Security Symposium}, 2018.
+
+\bibitem[Micikevicius et~al.(2018)Micikevicius, Narang, Alben, Diamos, Elsen,
+  Garcia, Ginsburg, Houston, Kuchaiev, Venkatesh, and Wu]{micikevicius2018}
+Paulius Micikevicius, Sharan Narang, Jonah Alben, Gregory Diamos, Erich Elsen,
+  David Garcia, Boris Ginsburg, Michael Houston, Oleksii Kuchaiev, Ganesh
+  Venkatesh, and Hao Wu.
+\newblock Mixed precision training.
+\newblock In \emph{International Conference on Learning Representations}, 2018.
+
+\bibitem[Nagarajan et~al.(2019)Nagarajan, Warnell, and Stone]{nagarajan2019}
+Prabhat Nagarajan, Garrett Warnell, and Peter Stone.
+\newblock Deterministic implementations for reproducibility in deep
+  reinforcement learning.
+\newblock In \emph{AAAI Workshop on Reproducible AI}, 2019.
+
+\bibitem[{NVIDIA Corporation}(2020)]{nvidia2020tf32}
+{NVIDIA Corporation}.
+\newblock {NVIDIA A100 Tensor Core GPU Architecture}.
+\newblock Technical White Paper, 2020.
+
+\bibitem[Pearl(2009)]{pearl2009}
+Judea Pearl.
+\newblock \emph{Causality: Models, Reasoning and Inference}.
+\newblock Cambridge University Press, 2nd edition, 2009.
+
+\bibitem[Schroeder et~al.(2009)Schroeder, Pinheiro, and Weber]{schroeder2009}
+Bianca Schroeder, Eduardo Pinheiro, and Wolf-Dietrich Weber.
+\newblock {DRAM} errors in the wild: A large-scale field study.
+\newblock In \emph{ACM SIGMETRICS Performance Evaluation Review}, 2009.
+
+\bibitem[Sculley et~al.(2015)Sculley, Holt, Golovin, Davydov, Phillips, Ebner,
+  Chaudhary, Young, Crespo, and Dennison]{sculley2015}
+D.~Sculley, Gary Holt, Daniel Golovin, Eugene Davydov, Todd Phillips, Dietmar
+  Ebner, Vinay Chaudhary, Michael Young, Jean-Fran{\c c}ois Crespo, and Dan
+  Dennison.
+\newblock Hidden technical debt in machine learning systems.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2015.
+
+\bibitem[Shannon(1948)]{shannon1948}
+Claude~E. Shannon.
+\newblock A mathematical theory of communication.
+\newblock \emph{Bell System Technical Journal}, 27\penalty0 (3):\penalty0
+  379--423, 1948.
+
+\bibitem[Tanenbaum(1987)]{tanenbaum1987}
+Andrew~S. Tanenbaum.
+\newblock \emph{Operating Systems: Design and Implementation}.
+\newblock Prentice-Hall, 1987.
+
+\bibitem[Vasen(2026)]{vasen2026demo06}
+Wiard Vasen.
+\newblock Demo\_06: One bounded witnessed instance of a layer-effect claim
+  under upl discipline.
+\newblock
+  \url{https://github.com/wiard/upl-foundation/tree/demo_06-checked-v1.0/demo_06},
+  2026.
+\newblock Bounded UPL Foundation artefact; $\sigma = \text{checked}$ under
+  stated boundary $B$.
+
+\end{thebibliography}

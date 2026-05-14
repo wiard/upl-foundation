@@ -1,0 +1,96 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\bibstyle{plainnat}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
+\citation{tanenbaum1987}
+\@writefile{toc}{\contentsline {paragraph}{Outline.}{2}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}The Layered AI-on-Chip Stack}{2}{section.2}\protected@file@percent }
+\newlabel{sec:stack}{{2}{2}{The Layered AI-on-Chip Stack}{section.2}{}}
+\citation{hendrycks2021}
+\citation{kocher2019,lipp2018}
+\@writefile{toc}{\contentsline {section}{\numberline {3}The Bounded-Warrant Framework}{3}{section.3}\protected@file@percent }
+\newlabel{sec:framework}{{3}{3}{The Bounded-Warrant Framework}{section.3}{}}
+\newlabel{def:judgment}{{1}{3}{UPL judgment}{definition.1}{}}
+\newlabel{def:layereffect}{{2}{3}{Layer-effect claim}{definition.2}{}}
+\citation{shannon1948}
+\citation{cover2006}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces UPL adjudication statuses ($\sigma \in \Sigma $).}}{4}{table.caption.1}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:logic}{{1}{4}{UPL adjudication statuses ($\sigma \in \Sigma $)}{table.caption.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}The UPL Logic Table}{4}{section.4}\protected@file@percent }
+\newlabel{sec:logictable}{{4}{4}{The UPL Logic Table}{section.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}An Information-Theoretic Formulation}{4}{section.5}\protected@file@percent }
+\newlabel{sec:entropy}{{5}{4}{An Information-Theoretic Formulation}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Claim entropy and witness information gain}{4}{subsection.5.1}\protected@file@percent }
+\newlabel{eq:gain}{{1}{4}{Claim entropy and witness information gain}{equation.1}{}}
+\citation{cover2006}
+\citation{fano1961,cover2006}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Inter-layer mutual information}{5}{subsection.5.2}\protected@file@percent }
+\newlabel{eq:dpi}{{2}{5}{Inter-layer mutual information}{equation.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}The L2--L3 transition as channel}{5}{subsection.5.3}\protected@file@percent }
+\newlabel{prop:bottleneck}{{1}{5}{Bridge bottleneck}{proposition.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Lower bound on error rate from Fano's inequality}{5}{subsection.5.4}\protected@file@percent }
+\newlabel{eq:fano}{{3}{5}{Lower bound on error rate from Fano's inequality}{equation.3}{}}
+\newlabel{eq:fano-rearranged}{{4}{5}{Lower bound on error rate from Fano's inequality}{equation.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces The L2--L3 bridge as a bounded-warrant zone. Lower-layer chip-level execution conditions (\textbf  {L0}--\textbf  {L1}) traverse \textbf  {L2} \emph  {Operation} before crystallising at \textbf  {L3} \emph  {Representation}. The bridge is the locus at which a chip-level event becomes structurally capable of carrying a claim. The four operations \emph  {witnessed} $\to $ \emph  {mapped} $\to $ \emph  {checked} $\to $ \emph  {ruled out} summarise the bounded-warrant discipline that any layer-effect claim must satisfy across this zone.}}{6}{figure.caption.2}\protected@file@percent }
+\newlabel{fig:bridge}{{1}{6}{The L2--L3 bridge as a bounded-warrant zone. Lower-layer chip-level execution conditions (\layer {0}--\layer {1}) traverse \layer {2} \emph {Operation} before crystallising at \layer {3} \emph {Representation}. The bridge is the locus at which a chip-level event becomes structurally capable of carrying a claim. The four operations \emph {witnessed} $\to $ \emph {mapped} $\to $ \emph {checked} $\to $ \emph {ruled out} summarise the bounded-warrant discipline that any layer-effect claim must satisfy across this zone}{figure.caption.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}The L2--L3 Bridge}{6}{section.6}\protected@file@percent }
+\newlabel{sec:bridge}{{6}{6}{The L2--L3 Bridge}{section.6}{}}
+\citation{micikevicius2018}
+\citation{nvidia2020tf32}
+\citation{nagarajan2019}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Chip-Level Calibrations and Their Propagation}{7}{section.7}\protected@file@percent }
+\newlabel{sec:calibrations}{{7}{7}{Chip-Level Calibrations and Their Propagation}{section.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{Mixed-precision arithmetic (FP32 $\leftrightarrow $ FP16/BF16).}{7}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Tensor Float-32 (TF32) on NVIDIA Ampere.}{7}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Deterministic versus non-deterministic kernels.}{7}{section.7}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The \textbf  {L2}.5 Interlayer --- UPL Reversible Influence Model (RIM). The bounded zone between \textbf  {L2} (execution) and \textbf  {L3} (representation) is where forward influence ($\mathrm  {chip}\to \mathrm  {output}$) and reverse influence ($\mathrm  {output}\to \mathrm  {chip}$) both produce named, measurable, causally traceable operators with explicit reversibility. The L2.5 state $S_{L2.5}(t) = \langle C, H, M, O, R, P, N \rangle $ captures compute, hardware, model, output, reversibility class, provenance, and UPL name. Forward and reverse mappings share the same six-witness discipline. Every event between \textbf  {L2} and \textbf  {L3} is treated as a named, measurable, causally traceable, and possibly reversible operator (\emph  {Principle L2.5\_Control}).}}{8}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:rim}{{2}{8}{The \layer {2}.5 Interlayer --- UPL Reversible Influence Model (RIM). The bounded zone between \layer {2} (execution) and \layer {3} (representation) is where forward influence ($\mathrm {chip}\to \mathrm {output}$) and reverse influence ($\mathrm {output}\to \mathrm {chip}$) both produce named, measurable, causally traceable operators with explicit reversibility. The L2.5 state $S_{L2.5}(t) = \langle C, H, M, O, R, P, N \rangle $ captures compute, hardware, model, output, reversibility class, provenance, and UPL name. Forward and reverse mappings share the same six-witness discipline. Every event between \layer {2} and \layer {3} is treated as a named, measurable, causally traceable, and possibly reversible operator (\emph {Principle L2.5\_Control})}{figure.caption.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Denormal flush-to-zero.}{8}{section.7}\protected@file@percent }
+\citation{schroeder2009}
+\citation{kim2014}
+\citation{hooker2020,sculley2015}
+\@writefile{toc}{\contentsline {paragraph}{Memory layout and kernel autotuning.}{9}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Thermal regime and operating temperature.}{9}{section.7}\protected@file@percent }
+\newlabel{eq:johnson}{{5}{9}{Thermal regime and operating temperature}{equation.5}{}}
+\newlabel{eq:arrhenius}{{6}{9}{Thermal regime and operating temperature}{equation.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Postulates of Reverse Inference and Toy-AI Feedback}{9}{section.8}\protected@file@percent }
+\newlabel{sec:reverse}{{8}{9}{Postulates of Reverse Inference and Toy-AI Feedback}{section.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Reverse inference}{9}{subsection.8.1}\protected@file@percent }
+\citation{pearl2009}
+\citation{kocher2019}
+\newlabel{post:reverse}{{1}{10}{Reverse inference}{postulate.1}{}}
+\newlabel{eq:bayes}{{7}{10}{Reverse inference}{equation.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Toy-AI feedback as an empirical entry point}{10}{subsection.8.2}\protected@file@percent }
+\newlabel{sec:toyai}{{8.2}{10}{Toy-AI feedback as an empirical entry point}{subsection.8.2}{}}
+\newlabel{post:toyai}{{2}{10}{Toy-AI feedback}{postulate.2}{}}
+\citation{vasen2026demo06}
+\newlabel{eq:toyai}{{8}{11}{Toy-AI feedback}{equation.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}Discussion}{11}{section.9}\protected@file@percent }
+\newlabel{sec:discussion}{{9}{11}{Discussion}{section.9}{}}
+\@writefile{toc}{\contentsline {paragraph}{Scope and first witnessed instance.}{11}{section.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Relation to existing fields.}{11}{section.9}\protected@file@percent }
+\bibdata{references}
+\bibcite{cover2006}{{1}{2006}{{Cover and Thomas}}{{}}}
+\bibcite{fano1961}{{2}{1961}{{Fano}}{{}}}
+\bibcite{hendrycks2021}{{3}{2021}{{Hendrycks et~al.}}{{Hendrycks, Carlini, Schulman, and Steinhardt}}}
+\bibcite{hooker2020}{{4}{2020}{{Hooker}}{{}}}
+\bibcite{kim2014}{{5}{2014}{{Kim et~al.}}{{Kim, Daly, Kim, Fallin, Lee, Lee, Wilkerson, Lai, and Mutlu}}}
+\@writefile{toc}{\contentsline {paragraph}{What this paper does not claim.}{12}{section.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Open questions.}{12}{section.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{A note on terminology.}{12}{section.9}\protected@file@percent }
+\bibcite{kocher2019}{{6}{2019}{{Kocher et~al.}}{{Kocher, Horn, Fogh, Genkin, Gruss, Haas, Hamburg, Lipp, Mangard, Prescher, Schwarz, and Yarom}}}
+\bibcite{lipp2018}{{7}{2018}{{Lipp et~al.}}{{Lipp, Schwarz, Gruss, Prescher, Haas, Fogh, Horn, Mangard, Kocher, Genkin, Yarom, and Hamburg}}}
+\bibcite{micikevicius2018}{{8}{2018}{{Micikevicius et~al.}}{{Micikevicius, Narang, Alben, Diamos, Elsen, Garcia, Ginsburg, Houston, Kuchaiev, Venkatesh, and Wu}}}
+\bibcite{nagarajan2019}{{9}{2019}{{Nagarajan et~al.}}{{Nagarajan, Warnell, and Stone}}}
+\bibcite{nvidia2020tf32}{{10}{2020}{{NVIDIA Corporation}}{{}}}
+\bibcite{pearl2009}{{11}{2009}{{Pearl}}{{}}}
+\bibcite{schroeder2009}{{12}{2009}{{Schroeder et~al.}}{{Schroeder, Pinheiro, and Weber}}}
+\bibcite{sculley2015}{{13}{2015}{{Sculley et~al.}}{{Sculley, Holt, Golovin, Davydov, Phillips, Ebner, Chaudhary, Young, Crespo, and Dennison}}}
+\bibcite{shannon1948}{{14}{1948}{{Shannon}}{{}}}
+\bibcite{tanenbaum1987}{{15}{1987}{{Tanenbaum}}{{}}}
+\bibcite{vasen2026demo06}{{16}{2026}{{Vasen}}{{}}}
+\gdef \@abspage@last{13}

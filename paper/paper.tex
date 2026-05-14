@@ -1,9 +1,10 @@
 % ============================================================
-% The L2-L3 Bridge: A Bounded-Warrant Framework for Tracing
-% Chip-Level Execution Conditions into AI Representations
+% When Execution Conditions Become Claim-Bearing
+% The L2--L3 Bridge as a Bounded-Warrant Layer for
+% AI-Relevant Execution Claims
 %
 % Author: Wiard Vasen
-% Status: v0.1 draft, exploration
+% Status: v0.4 draft, exploration
 % ============================================================
 
 \documentclass[11pt, a4paper]{article}
@@ -86,11 +87,11 @@
 \newcommand{\statuslabel}[1]{\texttt{\small #1}}
 
 % --- Title ---
-\title{The L2--L3 Bridge\\[6pt]
-\large\itshape A Bounded-Warrant Framework for Tracing\\
-Chip-Level Execution Conditions into AI Representations}
+\title{When Execution Conditions Become Claim-Bearing\\[6pt]
+\large\itshape The L2--L3 Bridge as a Bounded-Warrant Layer\\
+for AI-Relevant Execution Claims}
 \author{Wiard Vasen\\[2pt]\small\normalfont Independent Researcher\\\small\normalfont IJmuiden, the Netherlands}
-\date{\small Draft v0.1 --- May 2026}
+\date{\small Draft v0.4 --- May 2026}
 
 \begin{document}
 
@@ -99,33 +100,40 @@ Chip-Level Execution Conditions into AI Representations}
 % ============================================================
 \begin{abstract}
 \noindent
-Most discussions about artificial intelligence focus either on the
-semantic top of the computing stack --- prompts, outputs, alignment ---
-or on the physical bottom --- timing channels, hardware faults,
-side-channel leakage. The middle of the stack, where coordinated
-execution turns into encoded representation, receives comparatively
-little systematic attention. This paper introduces the
-\emph{L2--L3 bridge} as the transition where lower-layer execution
-conditions first become structurally capable of propagating into
-model behaviour. We develop a \emph{bounded-warrant framework} ---
-the Universal Provenance Layer (UPL) --- that adjudicates claims of
-the form $\upljudge{\Gamma}{K}{B}{W}$ under stated boundary
-conditions $B$ and explicit witnesses $W$. We formalise the
-framework information-theoretically using conditional claim entropy
-$H(K \mid W, \Gamma, B)$, the data-processing inequality, and
-Fano's lower bound on adjudication error rate. We survey
-chip-level calibrations --- mixed-precision arithmetic, TF32 mode,
-deterministic kernels, denormal flushing, and the thermal regime
-governed by Arrhenius and Johnson--Nyquist relations --- whose
-configuration has been shown to influence model output. We
-postulate two complementary reverse-direction modes: reverse
-inference from observed AI anomalies back to candidate chip-level
-causes, and \emph{toy-AI feedback}, in which a controlled small
-computation produces an instrumented chip-level signature, providing
-the framework's empirical entry point. The contribution is
-methodological: a bounded vocabulary for talking carefully about a
-zone that current AI safety and chip security literatures both
-leave largely untouched.
+Contemporary AI systems increasingly depend on execution conditions
+below the model layer: numeric precision, accelerator path, runtime
+kernel selection, batching behaviour, driver state, power policy,
+and environmental constraints. Existing semiconductor test,
+reliability, and functional-safety standards provide powerful methods
+for testing devices, interconnects, stress behaviour, qualification,
+and safety-related engineering artifacts. They do not, however,
+specify when such lower-layer execution conditions may support
+claims about AI-output boundaries. This paper introduces the
+\emph{L2--L3 bridge} as the transition where coordinated execution
+first becomes encoded representation, and develops the
+Universal Provenance Layer (UPL) as a \emph{bounded-warrant}
+framework for adjudicating AI-relevant execution-condition claims.
+The relevant unit is not the chip, runtime, or model in isolation,
+but the claim-bearing relation between a stated execution condition
+and an AI-output boundary. UPL represents this relation using the
+judgment form $\upljudge{\Gamma}{K}{B}{W}$, requiring every
+checked claim to be attached to an explicit boundary, witness chain,
+mapping, check, ruleout procedure, and adjudication status. We
+formalise the framework information-theoretically using conditional
+claim entropy $H(K \mid W, \Gamma, B)$, the data-processing
+inequality, and Fano's lower bound on adjudication error rate. We
+also survey candidate execution conditions --- mixed precision,
+TF32-like tensor formats, deterministic kernels, denormal handling,
+autotuning, and thermal regime --- as domains in which bounded
+warrants may be constructed. In this v0.4 draft we report one
+executed forward instance, \textsc{demo\_06}: a toy binary linear
+classifier under fp32/fp16 execution-precision contrast that yields
+$\sigma=\statuslabel{checked}$ within its stated boundary. This
+instance demonstrates feasibility of the witness discipline for one
+bounded claim. It does not certify hardware, generalise to production
+AI systems, or replace semiconductor test standards. UPL does not
+test whether a chip is good; it adjudicates whether a stated execution
+condition can carry a bounded claim about an AI-output boundary.
 \end{abstract}
 
 \vspace{0.5em}
@@ -141,79 +149,147 @@ labels, decisions, prompts, or semantic interpretation. But AI
 behaviour does not emerge directly from meaning. It emerges through
 layers of execution.
 
-At the bottom of the stack are physical execution conditions:
-cache behaviour, floating-point units, DRAM, branch predictors,
-memory allocation, scheduling, and timing. At the top are semantic
+At the bottom of the stack are physical and runtime execution
+conditions: floating-point units, memory hierarchy, accelerator
+selection, driver state, framework flags, kernel choice, scheduling,
+batching, temperature, and power state. At the top are semantic
 claims: interpretations about the world. Between those two extremes
-lies a largely unexplored transition: the point where coordinated
-execution becomes encoded representation. This paper focuses on
-that transition. We call it the \emph{L2--L3 bridge}.
+lies a comparatively under-specified transition: the point where
+coordinated execution becomes encoded representation. This paper
+focuses on that transition. We call it the \emph{L2--L3 bridge}.
 
-At \layer{2}, execution exists as operations, kernels, and computation
-graphs. At \layer{3}, those operations crystallise into activations,
-weights, attention states, and encoded vectors. The central research
-question is:
+At \layer{2}, execution exists as operations, kernels, and
+computation graphs. At \layer{3}, those operations crystallise into
+activations, weights, attention states, and encoded vectors. The
+central research question is:
 
 \begin{quote}\itshape
-Which lower-layer execution conditions, propagating through the
-L2--L3 bridge, can be witnessed, mapped, checked, and ruled out
-as claim-bearing for an upper-layer AI output boundary?
+When does a lower-layer execution condition, propagating through the
+L2--L3 bridge, become claim-bearing for an upper-layer AI-output
+boundary?
 \end{quote}
 
-The claim of this work is not that chip-level events directly
-explain AI semantics. The claim is narrower. The L2--L3 transition
-\emph{may} be the first place where lower-layer execution conditions
-become structurally capable of propagating into model behaviour.
-This transition therefore defines what we call the
-\emph{bounded-warrant gap}: the zone between physical execution
-and semantic interpretation, where claims about AI behaviour must
-first become traceable, checkable, and bounded.
+The answer cannot be ``whenever a trace exists.'' An execution trace
+alone is not a behavioural claim. Nor can the answer be ``whenever
+an output changes.'' An output change alone does not identify the
+execution condition that carried it. The missing object is a
+bounded warrant: an explicit relation among claim, boundary, witness,
+mapping, check, ruleout, and adjudication status.
 
-The contribution of this paper is methodological. We do not
-present new empirical results about chip-AI propagation. We
-introduce a vocabulary --- the bounded-warrant framework ---
-in which such results can be stated without overclaim, and a
-research question that delimits the relevant scope. The framework
-is informed in spirit by Tanenbaum's MINIX discipline
-\citep{tanenbaum1987}: small, clean, safe, understandable
-infrastructure beneath every claim.
+The claim of this work is therefore deliberately narrow. The L2--L3
+transition may be the first place where lower-layer execution
+conditions become structurally capable of propagating into model
+behaviour. This transition defines a \emph{bounded-warrant gap}:
+the zone between physical/runtime execution and semantic
+interpretation where claims about AI behaviour must first become
+traceable, checkable, and bounded.
+
+The primary contribution of this paper is methodological. We
+introduce a vocabulary --- the bounded-warrant framework --- in
+which execution-condition claims can be stated without overclaim.
+In addition, this draft reports one bounded toy precision-contrast
+instance, \textsc{demo\_06} (Section~\ref{sec:discussion}), whose
+purpose is not to establish general chip-AI propagation but to
+demonstrate that the UPL six-witness discipline can be executed
+end-to-end under a stated boundary. The framework is informed in
+spirit by Tanenbaum's MINIX discipline \citep{tanenbaum1987}:
+small, clean, safe, understandable infrastructure beneath every
+claim.
 
 \paragraph{Outline.}
-Section~\ref{sec:stack} characterises the AI-on-chip stack.
-Section~\ref{sec:framework} introduces the bounded-warrant judgment
-form. Section~\ref{sec:logictable} presents the UPL logic table
-that adjudicates status assignments. Section~\ref{sec:entropy}
+Section~\ref{sec:scope} fixes the scope: UPL is a warrant layer,
+not a replacement for semiconductor test, reliability, or safety
+standards. Section~\ref{sec:stack} characterises the layered AI
+execution stack. Section~\ref{sec:framework} introduces the
+bounded-warrant judgment form. Section~\ref{sec:logictable}
+presents the UPL status vocabulary. Section~\ref{sec:entropy}
 formalises the framework information-theoretically, including
-Fano's lower bound on adjudication error.
-Section~\ref{sec:bridge} concentrates on the L2--L3 bridge and
-presents the main figure. Section~\ref{sec:calibrations} surveys
-chip-level calibrations whose configuration is known to influence
-model output, including the thermal regime.
-Section~\ref{sec:reverse} states two postulates: reverse inference
-from observed anomalies to chip-level candidates, and toy-AI
-feedback as the framework's empirical entry point.
-Section~\ref{sec:discussion} discusses open questions.
+Fano's lower bound on adjudication error. Section~\ref{sec:bridge}
+concentrates on the L2--L3 bridge and presents the main figure.
+Section~\ref{sec:calibrations} surveys candidate execution
+conditions and calibrations. Section~\ref{sec:reverse} states two
+postulates: reverse inference from observed anomalies to lower-layer
+candidates, and toy-AI feedback as a proposed empirical entry point
+for the reverse direction. Section~\ref{sec:profiles} sketches a
+path from individual demonstrations to UPL test profiles.
+Section~\ref{sec:discussion} discusses open questions and reports
+one executed forward instance, \textsc{demo\_06}.
 
 % ============================================================
-\section{The Layered AI-on-Chip Stack}
+\section{Scope: UPL Is a Warrant Layer, Not a Chip-Test Replacement}
+\label{sec:scope}
+
+UPL should not be interpreted as a replacement for established
+semiconductor test, reliability, or functional-safety standards.
+Standards and engineering flows such as IEEE 1149.1/JTAG,
+IEEE 1838, JEDEC stress methods, AEC-Q100, ISO 26262, and related
+functional-safety information-exchange practices address test
+access, device qualification, reliability stress, safety lifecycle,
+and engineering evidence across abstraction levels. UPL addresses
+a different problem:
+
+\begin{quote}\itshape
+When a lower-layer execution condition is invoked as support for a
+claim about an AI-output boundary, what must be bounded, witnessed,
+mapped, checked, ruled out, and adjudicated before that claim is
+allowed?
+\end{quote}
+
+The relevant unit in UPL is therefore not the chip, package, board,
+runtime, or model considered in isolation. The relevant unit is the
+claim-bearing relation between an execution condition and an
+AI-output boundary. A chip, runtime, kernel, precision mode,
+thermal state, or driver flag enters UPL only insofar as it is used
+to support such a relation.
+
+\renewcommand{\arraystretch}{1.25}
+\begin{table}[t]
+\centering
+\caption{UPL compared with adjacent engineering questions.}
+\label{tab:scope}
+\small
+\begin{tabularx}{\textwidth}{l X X}
+\toprule
+\textbf{Domain} & \textbf{Typical question} & \textbf{UPL question} \\
+\midrule
+Semiconductor test & Is the device electrically testable or defective? & Can this device/runtime condition carry a bounded AI-output claim? \\
+Reliability qualification & Has the component passed stress or lifetime requirements? & Does a stress/environment condition become claim-bearing for boundary $B$? \\
+Functional safety & Is the safety lifecycle and safety evidence adequate? & Can safety/reliability evidence be mapped to an AI-execution claim? \\
+AI evaluation & Did the model produce output $O$ or score $S$? & Is the lower-layer execution condition admissible as warrant for that output boundary? \\
+Provenance/audit & Which artifacts and versions were used? & Is the witness chain sufficient to adjudicate claim $K$ under boundary $B$? \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+This scope distinction is central. UPL does not test whether a chip
+is good. UPL tests whether a stated execution condition can carry a
+bounded claim about an AI-output boundary. A successful UPL judgment
+therefore never means ``the hardware is certified'' or ``the AI
+system is safe.'' It means only: under this boundary, with these
+witnesses, according to this profile and context, the claim has the
+returned adjudication status $\sigma$.
+
+% ============================================================
+\section{The Layered AI Execution Stack}
 \label{sec:stack}
 
-We adopt a six-layer model of AI-on-chip execution. Each layer
-corresponds to a distinct \emph{meaning-giving act} performed on
-the signal as it ascends:
+We adopt a six-layer model of AI execution. Each layer corresponds
+to a distinct \emph{meaning-giving act} performed on the signal as
+it ascends:
 
 \begin{itemize}
 \item \layer{0} \textbf{Occurrence}.\ FPU operations, cache lines,
-DRAM accesses, branch predictor state. Physical execution
-conditions; pre-meaning.
+DRAM accesses, branch predictor state, sensor/counter readings.
+Physical execution conditions; pre-meaning.
 \item \layer{1} \textbf{Coordination}.\ Scheduling, memory
-allocation, drivers, OS. The event becomes a resource-mediated
-process.
+allocation, drivers, OS, runtime resource mediation. The event
+becomes a resource-mediated process.
 \item \layer{2} \textbf{Operation}.\ Kernels, ops, computation
-graphs. The coordinated process becomes a named operation.
+graphs, backend-selected implementations. The coordinated process
+becomes a named operation.
 \item \layer{3} \textbf{Representation}.\ Activations, weights,
-attention, encoded state. The operation crystallises into
-encoded state.
+attention, encoded state. The operation crystallises into encoded
+state.
 \item \layer{4} \textbf{Decision}.\ Logits, tokens, labels, output
 commitment. The representation becomes a committed position.
 \item \layer{5} \textbf{Interpretation}.\ Semantic claims, prompts,
@@ -232,51 +308,54 @@ semantic claim:
 \;\to\;\text{Interpretation}.
 \]
 
-The naming scheme is deliberately functional: each layer is
-named for what \emph{happens} there, not for the technology used
-to implement it. PyTorch, TensorFlow, and JAX all instantiate
-\emph{Operation} at \layer{2}, regardless of which framework is
-chosen. This decoupling matters for bounded warrants:
-a witness at \layer{2} need not commit to a specific framework
-to remain valid across re-implementations.
+The naming scheme is deliberately functional: each layer is named
+for what \emph{happens} there, not for the technology used to
+implement it. PyTorch, TensorFlow, JAX, ONNX Runtime, accelerator
+firmware, and compiler backends may all instantiate \emph{Operation}
+at \layer{2}. This decoupling matters for bounded warrants: a
+witness at \layer{2} need not commit to a specific framework to
+remain meaningful across re-implementations, provided the boundary
+$B$ states the allowed abstraction.
 
 The reader should note where existing research traditions sit on
 this stack. AI safety scholarship typically operates at
 \layer{4}--\layer{5}: outputs, alignment, interpretation
 \citep{hendrycks2021}. Chip security research typically operates
 at \layer{0}--\layer{1}: timing channels, speculative execution,
-microarchitectural state \citep{kocher2019, lipp2018}.
-The middle of the stack --- \layer{2} and \layer{3} ---
-is comparatively unaudited. This is the bounded-warrant gap.
+microarchitectural state \citep{kocher2019, lipp2018}. The middle
+of the stack --- \layer{2} and \layer{3} --- is comparatively
+under-audited. This is the bounded-warrant gap.
 
 % ============================================================
 \section{The Bounded-Warrant Framework}
 \label{sec:framework}
 
 The Universal Provenance Layer (UPL) introduces a judgment form
-that adjudicates claims about behaviour without asserting their
-truth.
+that adjudicates claims about behaviour without asserting truth in
+general.
 
 \begin{definition}[UPL judgment]\label{def:judgment}
 A UPL judgment is an expression
 \[
 \Gamma \;\vdash\; K \;@\; B \;\Leftarrow\; W \;:\; \sigma
 \]
-where $\Gamma$ is a set of stated assumptions, $K$ is the claim,
-$B$ is the boundary within which $K$ is asserted, $W$ is the
-witness offered in support, and $\sigma \in \Sigma$ is the
-status returned by adjudication.
+where $\Gamma$ is a set of stated assumptions, rules, profiles, and
+allowed inferential moves; $K$ is the claim; $B$ is the boundary
+within which $K$ is asserted; $W$ is the witness set offered in
+support; and $\sigma \in \Sigma$ is the status returned by
+adjudication.
 \end{definition}
 
-The judgment is not a proof. UPL does not validate truth; it
-\emph{adjudicates admissibility}. Adjudication returns one of
-nine statuses (Section~\ref{sec:logictable}). The framework
-distinguishes a candidate \emph{UPLJudgment} (the input) from
-the adjudicated \emph{UPLDecision} (the output).
+The judgment is not a proof and not a certification. UPL does not
+validate universal truth; it adjudicates bounded admissibility. The
+framework distinguishes a candidate \emph{UPLJudgment} (the input)
+from the adjudicated \emph{UPLDecision} (the output). The same claim
+$K$ may receive different statuses under different boundaries,
+witnesses, profiles, or assumptions.
 
-For claims about how a lower-layer condition affects an
-upper-layer output boundary, we require a structured witness
-composed of six components:
+For claims about how a lower-layer condition affects an upper-layer
+output boundary, we require a structured witness composed of six
+components:
 
 \begin{definition}[Layer-effect claim]\label{def:layereffect}
 A layer-effect claim is a UPL judgment
@@ -289,20 +368,29 @@ A layer-effect claim is a UPL judgment
 \]
 where the witness components are:
 \begin{itemize}
-\item $\witness{input}$ --- the input or workload condition under which the claim is asserted;
-\item $\witness{exec}$ --- observation of the lower-layer execution condition itself;
-\item $\witness{map}$ --- the mapping from execution condition to an upper-layer model variable;
-\item $\witness{contract}$ --- the semantic contract that fixes what counts as the upper-layer output boundary;
-\item $\witness{check}$ --- the controlled comparison demonstrating an output-boundary shift;
-\item $\witness{ruleout}$ --- the evidence excluding alternative attributions of the shift.
+\item $\witness{input}$ --- the input, workload, seed, dataset slice,
+or traffic condition under which the claim is asserted;
+\item $\witness{exec}$ --- observation of the lower-layer execution
+condition itself, such as precision mode, backend, kernel, driver,
+counter trace, temperature trace, or runtime flag;
+\item $\witness{map}$ --- the mapping from execution condition to an
+upper-layer model variable or representational quantity;
+\item $\witness{contract}$ --- the semantic or operational contract
+that fixes what counts as the upper-layer output boundary;
+\item $\witness{check}$ --- the controlled comparison demonstrating
+whether the output boundary shifts under the stated condition;
+\item $\witness{ruleout}$ --- the evidence excluding alternative
+attributions of the observed shift within $B$.
 \end{itemize}
 \end{definition}
 
 \noindent
-All six components are mandatory. A layer-effect claim with
-fewer than six receives status \statuslabel{incomplete}; UPL
-does not award partial credit. This is the discipline that
-prevents an execution trace alone --- which contains no model
+All six components are mandatory for status \statuslabel{checked}.
+A layer-effect claim with fewer than six required components cannot
+be checked; it receives \statuslabel{incomplete},
+\statuslabel{unsupported}, or \statuslabel{out\_of\_scope}, depending
+on the failure mode. This is the discipline that prevents an
+execution trace alone --- which contains no model-boundary
 information --- from being claimed as supporting a behavioural
 conclusion.
 
@@ -312,12 +400,14 @@ farther than its evidence.
 \end{remark}
 
 % ============================================================
-\section{The UPL Logic Table}
+\section{The UPL Status Vocabulary}
 \label{sec:logictable}
 
-UPL adjudicates each judgment into one of nine statuses.
-Table~\ref{tab:logic} states the vocabulary, its witness condition,
-and what may and may not follow.
+UPL adjudicates each judgment into a status. Table~\ref{tab:logic}
+states the vocabulary, its witness condition, and what may and may
+not follow. The central convention is that \statuslabel{checked}
+means ``supported under this boundary, with these witnesses, according
+to this profile.'' It never means true in general.
 
 \renewcommand{\arraystretch}{1.3}
 \begin{table}[t]
@@ -329,24 +419,26 @@ and what may and may not follow.
 \toprule
 \textbf{Status} & \textbf{Witness condition} & \textbf{Adjudication result} \\
 \midrule
-\statuslabel{unsupported}      & No witness offered or no witness within $B$.                         & Claim is not admissible. \\
-\statuslabel{observed}         & $\witness{exec}$ present; other components absent.                   & Descriptive claim only; no behavioural conclusion. \\
-\statuslabel{witnessed}        & Witness components present and self-consistent.                      & Admissible at the witness level; no check yet. \\
-\statuslabel{pending\_check}   & $\witness{check}$ specified but not yet executed.                    & Awaiting controlled comparison. \\
-\statuslabel{checked}          & All six components present and check succeeded.                      & Claim admitted within $B$. \\
-\statuslabel{failed}           & All six components present; check did not support $K$.              & $K$ not supported by $W$ in $B$. Not equivalent to $\neg K$. \\
-\statuslabel{disputed}         & Conflicting witnesses or contested $\Gamma$.                         & Adjudication suspended pending resolution. \\
-\statuslabel{incomplete}       & Required witness components missing.                                 & Cannot yet be adjudicated. \\
-\statuslabel{out\_of\_boundary} & Witness lies outside $B$.                                            & Claim falls outside stated scope. \\
+\statuslabel{unsupported} & No admissible witness is offered, or the offered witness is unrelated to $K$ in $B$. & Claim is not admissible. \\
+\statuslabel{bounded} & $K$, $B$, and the required witness obligations are well formed, but the witness chain is not yet assembled. & Claim is admissible as a test target only. No result follows. \\
+\statuslabel{incomplete} & One or more required witness components are missing for the selected profile. & Claim cannot yet be adjudicated. \\
+\statuslabel{pending\_check} & Witness chain and check are specified, but the controlled comparison has not yet been executed. & Awaiting check. \\
+\statuslabel{checked} & Required witnesses are present; check succeeds; ruleout passes within $B$. & Claim admitted within $B$ only. \\
+\statuslabel{failed} & Required witnesses are present; check does not support $K$. & $K$ not supported by $W$ in $B$. Not equivalent to $\neg K$. \\
+\statuslabel{contradicted} & Witnesses support a mutually incompatible claim, or directly support $\neg K$ under the same $B$. & $K$ is contradicted within $B$. \\
+\statuslabel{inconclusive} & Check is executed but signal, mapping, or ruleout is insufficient to decide. & No adjudicated support or contradiction. \\
+\statuslabel{out\_of\_scope} & Claim, witness, or inference lies outside $B$ or outside the selected profile. & Claim falls outside stated scope. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-The crucial distinction is between \statuslabel{failed} and
-$\neg K$. A failed check means the witness/check relation did not
-support $K$ inside $B$; it does \emph{not} mean $K$ has been
-disproved. Negation is itself a claim and requires its own
-witness chain.
+The crucial distinction is between \statuslabel{failed},
+\statuslabel{contradicted}, and $\neg K$. A failed check means the
+witness/check relation did not support $K$ inside $B$; it does not
+mean $K$ has been disproved. A contradicted judgment requires a
+positive witness chain for an incompatible claim under the same
+boundary. Negation is itself a claim and requires its own witness
+chain.
 
 % ============================================================
 \section{An Information-Theoretic Formulation}
@@ -359,9 +451,9 @@ mutual information \citep{cover2006}.
 
 \subsection{Claim entropy and witness information gain}
 
-Let $K$ be a binary random variable whose value is the truth of
-the claim under $\Gamma$ and $B$. Before any witness is offered,
-the uncertainty about $K$ is the prior claim entropy
+Let $K$ be a binary random variable whose value is the truth of the
+claim under $\Gamma$ and $B$. Before any witness is offered, the
+uncertainty about $K$ is the prior claim entropy
 \[
 H(K \mid \Gamma, B) \;=\; -\!\!\sum_{k \in \{0,1\}}
 \Pr(K=k \mid \Gamma, B)\,\log_2 \Pr(K=k \mid \Gamma, B).
@@ -377,21 +469,28 @@ H(K \mid \Gamma, B) - H(K \mid W, \Gamma, B).
 \end{equation}
 We say a witness is \emph{claim-bearing} for $K$ in $B$ when
 $I(K; W \mid \Gamma, B) > \tau$ for some pre-stated threshold
-$\tau > 0$. The threshold is part of the boundary $B$, not a
-free parameter: $B$ must specify what counts as adequate
-information transfer before any check is run.
+$\tau > 0$. The threshold is part of the boundary $B$, not a free
+parameter: $B$ must specify what counts as adequate information
+transfer before any check is run.
 
-Three UPL statuses correspond naturally:
+Several UPL statuses correspond naturally:
 \begin{itemize}
-\item \statuslabel{checked}: $I(K;W) > \tau$ and the sign of the
-update supports $K$.
-\item \statuslabel{failed}: $I(K;W) > \tau$ and the sign of the
-update opposes $K$.
-\item \statuslabel{incomplete}: $I(K;W) < \tau$.
+\item \statuslabel{checked}: $I(K;W \mid \Gamma,B) > \tau$, the
+update supports $K$, and the profile's ruleout obligations pass.
+\item \statuslabel{contradicted}: $I(K;W \mid \Gamma,B) > \tau$, but
+the update supports an incompatible claim under the same $B$.
+\item \statuslabel{failed}: the specified check does not support $K$,
+without establishing a positive incompatible claim.
+\item \statuslabel{incomplete} or \statuslabel{unsupported}: $W$ is
+missing, malformed, or carries insufficient information for the
+selected claim/profile.
+\item \statuslabel{inconclusive}: $I(K;W \mid \Gamma,B)$, mapping,
+or ruleout is insufficient to adjudicate either support or
+contradiction.
 \end{itemize}
-The remaining statuses correspond to violations of well-formedness
-(boundary, consistency, completeness) and are not reducible to
-information-theoretic quantities alone.
+The remaining distinctions concern well-formedness, boundary, and
+profile compliance; they are not reducible to information-theoretic
+quantities alone.
 
 \subsection{Inter-layer mutual information}
 
@@ -406,9 +505,10 @@ I(X_0; X_5)
 \label{eq:dpi}
 \end{equation}
 The bound says: the amount of \layer{0} information reaching
-\layer{5} cannot exceed the narrowest channel along the path.
-If any single inter-layer channel has low mutual information, no
-fine-grained \layer{0} condition can survive to \layer{5}.
+\layer{5} cannot exceed the narrowest channel along the path. If
+any single inter-layer channel has low mutual information, no
+fine-grained \layer{0} condition can survive to \layer{5} as a
+strong claim-bearing signal.
 
 \subsection{The L2--L3 transition as channel}
 
@@ -428,22 +528,21 @@ I(X_0; X_4) \;\leq\; C(\mathcal{C}_{2\to 3}).
 
 \noindent
 Proposition~\ref{prop:bottleneck} is a corollary of \eqref{eq:dpi}
-and provides a precise sense in which the L2--L3 bridge is
-informationally decisive. Where the bridge is narrow ---
-e.g.\ aggressive quantisation, dimensionality collapse,
-attention masking --- chip-level conditions cannot propagate
-finely. Where it is wide --- e.g.\ high-precision matmul with
-preserved fan-out --- they can. The framework does not assert
-either condition holds in any specific deployment; it states
-the structural relation.
+and provides a precise sense in which the L2--L3 bridge can be
+informationally decisive. Where the bridge is narrow --- e.g.\
+aggressive quantisation, dimensionality collapse, attention masking
+--- lower-layer execution conditions cannot propagate finely. Where
+it is wide --- e.g.\ high-precision matmul with preserved fan-out ---
+they may. The framework does not assert either condition holds in
+any specific deployment; it states the structural relation.
 
 \subsection{Lower bound on error rate from Fano's inequality}
 
 Information-theoretic constraints also give us a lower bound on
-\emph{how often} an adjudication can be in error. Fano's
-inequality \citep{fano1961, cover2006} relates the conditional
-entropy $H(K \mid W)$ to the probability $P_e$ of incorrect
-adjudication. For a binary claim $K \in \{0, 1\}$:
+\emph{how often} an adjudication can be in error. Fano's inequality
+\citep{fano1961, cover2006} relates the conditional entropy
+$H(K \mid W)$ to the probability $P_e$ of incorrect adjudication.
+For a binary claim $K \in \{0, 1\}$:
 \begin{equation}
 H(K \mid W, \Gamma, B) \;\leq\; H_b(P_e),
 \label{eq:fano}
@@ -457,20 +556,20 @@ P_e \;\geq\; H_b^{-1}\bigl(H(K \mid W, \Gamma, B)\bigr),
 where $H_b^{-1}$ denotes the inverse of $H_b$ on $[0, 1/2]$.
 
 The interpretation is operational: if the witness leaves the claim
-sufficiently uncertain --- that is, if $H(K \mid W, \Gamma, B)$
-is large --- then no adjudication procedure can drive $P_e$ below
-the bound. Adjudicating a claim with a weak witness will be wrong
-some of the time, and the lower bound on that error rate is set
-by information, not by adjudicator ingenuity. This is one of the
+sufficiently uncertain --- that is, if $H(K \mid W, \Gamma, B)$ is
+large --- then no adjudication procedure can drive $P_e$ below the
+bound. Adjudicating a claim with a weak witness will be wrong some
+of the time, and the lower bound on that error rate is set by
+information, not by adjudicator ingenuity. This is one of the
 strongest formal motivations for the bounded-warrant discipline:
 constructing $W$ with high mutual information is not optional,
-because $P_e$ is rate-limited by $H(K \mid W)$ regardless of how
-the adjudication is implemented.
+because $P_e$ is rate-limited by $H(K \mid W)$ regardless of how the
+adjudication is implemented.
 
 \begin{remark}
 Fano's bound applies to the adjudicator viewed as a decoder of $K$
-from $W$. UPL is not a decoder in the cryptographic sense, but
-the structural relation holds: insufficient information cannot be
+from $W$. UPL is not a decoder in the cryptographic sense, but the
+structural relation holds: insufficient information cannot be
 compensated for by procedure.
 \end{remark}
 
@@ -506,12 +605,12 @@ labels the bounded-warrant framework as a four-stage discipline.
   },
 ]
 \node[figlayercontext, fill=figctxBelow] (figlow) at (0,0) {%
-  \textbf{L0--L1}\quad\textit{chip-level execution conditions}\\[3pt]
-  \small FPU, cache, DRAM, branch predictors, scheduling, allocation%
+  \textbf{L0--L1}\quad\textit{lower-layer execution conditions}\\[3pt]
+  \small FPU, cache, DRAM, counters, scheduling, allocation, driver/runtime state%
 };
 \node[figlayerprimary, fill=figfillL2, above=1.8cm of figlow] (figL2) {%
   \textbf{L2\quad Operation}\par
-  \small kernels, ops, computation graph\par
+  \small kernels, ops, computation graph, backend implementation\par
   \small\itshape coordinated process becomes named operation%
 };
 \node[figbridgebox, above=1.8cm of figL2] (figbridge) {%
@@ -530,139 +629,149 @@ labels the bounded-warrant framework as a four-stage discipline.
 \end{tikzpicture}%
 }
 \caption{The L2--L3 bridge as a bounded-warrant zone. Lower-layer
-chip-level execution conditions (\layer{0}--\layer{1}) traverse
-\layer{2} \emph{Operation} before crystallising at \layer{3}
-\emph{Representation}. The bridge is the locus at which a
-chip-level event becomes structurally capable of carrying a
-claim. The four operations \emph{witnessed} $\to$ \emph{mapped}
-$\to$ \emph{checked} $\to$ \emph{ruled out} summarise the
-bounded-warrant discipline that any layer-effect claim must
-satisfy across this zone.}
+execution conditions (\layer{0}--\layer{1}) traverse \layer{2}
+\emph{Operation} before crystallising at \layer{3}
+\emph{Representation}. The bridge is the locus at which an execution
+condition can become structurally capable of carrying a bounded
+claim about an AI-output boundary. The four operations
+\emph{witnessed} $\to$ \emph{mapped} $\to$ \emph{checked} $\to$
+\emph{ruled out} summarise the bounded-warrant discipline that any
+layer-effect claim must satisfy across this zone.}
 \label{fig:bridge}
 \end{figure}
 
-Three properties make the L2--L3 transition the natural locus
-for bounded warrants:
+Three properties make the L2--L3 transition the natural locus for
+bounded warrants:
 
 \begin{enumerate}
 \item \textbf{First point of representational identity.}
 Below \layer{3}, no entity in the computation is identifiable as
-``a weight'' or ``an activation''. There is only the framework's
-view of operations on tensors. At \layer{3}, those tensors acquire
-positional and semantic role within the model.
+``a weight'' or ``an activation'' except through the framework's
+operational interpretation. At \layer{3}, tensors acquire positional
+and functional role within the model.
 \item \textbf{Bottleneck candidacy.} Per
-Proposition~\ref{prop:bottleneck}, the \layer{2}-\layer{3}
-channel is a candidate bottleneck for information propagation.
-Whether it is the binding constraint depends on the specific
-deployment, but it is the layer at which precision, quantisation,
+Proposition~\ref{prop:bottleneck}, the \layer{2}-\layer{3} channel
+is a candidate bottleneck for information propagation. Whether it
+is the binding constraint depends on the specific deployment, but
+it is the layer at which precision, quantisation, kernel choice,
 and architectural choices most directly intersect.
 \item \textbf{Witness constructibility.} Witnesses at \layer{0} are
 abundant (hardware counters, performance traces, microarchitectural
-probes) but often disconnected from model semantics. Witnesses at
+probes) but often disconnected from model boundaries. Witnesses at
 \layer{5} are abundant (output logs, evaluations, prompts) but
-disconnected from physical execution. The L2--L3 bridge is the
-layer at which a witness can plausibly connect both ends --- where
-$\witness{exec}$ and $\witness{map}$ can be defined together.
+disconnected from physical and runtime execution. The L2--L3 bridge
+is the layer at which a witness can plausibly connect both ends ---
+where $\witness{exec}$ and $\witness{map}$ can be defined together.
 \end{enumerate}
 
 \begin{figure*}[!t]
 \centering
-\includegraphics[width=0.98\textwidth]{upl_rim_l2_5_model_v2.pdf}
+\IfFileExists{upl_rim_l2_5_model_v2.pdf}{%
+  \includegraphics[width=0.98\textwidth]{upl_rim_l2_5_model_v2.pdf}%
+}{%
+  \fbox{\parbox{0.92\textwidth}{\centering\vspace{1.2em}
+  Placeholder for \texttt{upl\_rim\_l2\_5\_model\_v2.pdf}.\\
+  Add the figure file to render the full L2.5 Reversible Influence Model.
+  \vspace{1.2em}}}%
+}
 \caption{The \layer{2}.5 Interlayer --- UPL Reversible Influence
 Model (RIM). The bounded zone between \layer{2} (execution) and
 \layer{3} (representation) is where forward influence
-($\mathrm{chip}\to\mathrm{output}$) and reverse influence
-($\mathrm{output}\to\mathrm{chip}$) both produce named, measurable,
-causally traceable operators with explicit reversibility. The
-L2.5 state $S_{L2.5}(t) = \langle C, H, M, O, R, P, N \rangle$
-captures compute, hardware, model, output, reversibility class,
-provenance, and UPL name. Forward and reverse mappings share the
-same six-witness discipline. Every event between \layer{2} and
-\layer{3} is treated as a named, measurable, causally traceable,
-and possibly reversible operator (\emph{Principle L2.5\_Control}).}
+($\mathrm{execution}\to\mathrm{output}$) and reverse influence
+($\mathrm{output}\to\mathrm{execution}$) are represented as candidate
+named, measurable, causally traceable operators with explicit
+reversibility classes. The L2.5 state
+$S_{L2.5}(t) = \langle C, H, M, O, R, P, N \rangle$ captures compute,
+hardware/runtime, model, output, reversibility class, provenance,
+and UPL name. Forward and reverse mappings share the same
+six-witness discipline. Every event between \layer{2} and \layer{3}
+is treated as a named, measurable, causally traceable, and possibly
+reversible operator (\emph{Principle L2.5\_Control}).}
 \label{fig:rim}
 \end{figure*}
 
-Figure~\ref{fig:rim} extends the bridge model with explicit
-operator structure and bidirectional reversibility. The L2.5
-zone is not a new physical layer; it is a bounded reasoning
-zone within which forward and reverse claims can be named,
-measured, and adjudicated under the same witness discipline.
+Figure~\ref{fig:rim} extends the bridge model with explicit operator
+structure and bidirectional reversibility. The L2.5 zone is not a
+new physical layer; it is a bounded reasoning zone within which
+forward and reverse claims can be named, measured, and adjudicated
+under the same witness discipline.
 
 % ============================================================
-\section{Chip-Level Calibrations and Their Propagation}
+\section{AI-Relevant Execution Conditions and Calibrations}
 \label{sec:calibrations}
 
-The bounded-warrant framework is motivated by, but does not
-assume, real instances of chip-level conditions affecting model
+The bounded-warrant framework is motivated by, but does not assume,
+real instances of lower-layer execution conditions affecting model
 behaviour. Several configurable \emph{calibrations} are documented
-in the literature as inducing observable changes at the model
-output. We list them as candidate domains for which the framework
-should ultimately be tested.
+as affecting numerical traces, reproducibility, or boundary-near
+outputs. We list them as candidate domains for which UPL profiles
+should ultimately be tested. The list is not a catalogue of proven
+AI-semantic causes.
 
 \paragraph{Mixed-precision arithmetic
 (FP32 $\leftrightarrow$ FP16/BF16).}
-Mixed-precision training and inference reduce numerical
-precision of intermediate values, typically with master-weight
-preservation \citep{micikevicius2018}. The chip-level effect is
-a change in floating-point rounding behaviour; the L2 effect is
-a change in kernel selection; the L3 effect is a perturbation of
-activations whose magnitude depends on operator dynamic range.
-The witness chain
+Mixed-precision training and inference reduce numerical precision
+of intermediate values, typically with master-weight preservation
+\citep{micikevicius2018}. The lower-layer effect is a change in
+floating-point rounding behaviour; the L2 effect is often a change
+in kernel selection; the L3 effect is a perturbation of activations
+whose magnitude depends on operator dynamic range. The witness chain
 $\witness{input} \oplus \witness{exec} \oplus \witness{map} \oplus
 \witness{contract} \oplus \witness{check} \oplus \witness{ruleout}$
-is in principle constructible for any specific input on which the
-two precisions diverge in output.
+is in principle constructible for a specific input set on which two
+precision regimes diverge at a stated output boundary.
 
-\paragraph{Tensor Float-32 (TF32) on NVIDIA Ampere.}
-TF32 \citep{nvidia2020tf32} retains FP32 dynamic range but
-truncates the mantissa to 10 bits, accelerating matmul at the
-cost of a small precision reduction in the inner-product. TF32 is
-enabled by default in PyTorch on Ampere-class hardware unless
-explicitly disabled. The configuration --- a single flag in the
-runtime --- is a chip-level calibration in the sense developed
-here: a property of the execution layer that may or may not be
-relevant to a given output boundary.
+\paragraph{Tensor Float-32 and related tensor formats.}
+TF32 \citep{nvidia2020tf32} retains FP32 dynamic range while using a
+shorter mantissa for tensor operations, accelerating matmul at the
+cost of reduced precision in the inner product. Runtime libraries
+and frameworks may expose such behaviour through configuration
+flags or backend policy. In UPL terms, the flag or backend policy is
+not itself the claim; it is a candidate execution condition that may
+or may not become claim-bearing for a given output boundary.
 
 \paragraph{Deterministic versus non-deterministic kernels.}
 Several deep-learning kernels admit multiple implementations that
 return numerically distinct outputs on identical inputs due to
-non-associativity of floating-point addition under varying
-reduction orders \citep{nagarajan2019}. cuDNN, for instance,
-exposes a deterministic-mode flag that constrains kernel choice.
-The chip-level effect is a change in reduction order; the L3
-effect is a perturbation in computed activations; the L4 effect
-in rare cases is a flipped classification near decision
-boundaries.
+non-associativity of floating-point addition under varying reduction
+orders \citep{nagarajan2019}. Runtime libraries may expose
+deterministic-mode settings that constrain kernel choice. The
+lower-layer effect is a change in reduction order or implementation;
+the L3 effect is a perturbation in computed activations; the L4
+effect, in boundary-near cases, may be a flipped classification or
+token decision.
 
 \paragraph{Denormal flush-to-zero.}
 Many FPUs offer a \emph{flush-to-zero} mode in which subnormal
-floating-point values are replaced by zero. The chip-level effect
-is a change in rounding behaviour for very small values.
-Propagation through \layer{2}--\layer{3} depends on whether
-training or inference produces denormals in the relevant operator,
-which itself depends on architecture and initialisation.
+floating-point values are replaced by zero. The lower-layer effect
+is a change in rounding behaviour for very small values. Propagation
+through \layer{2}--\layer{3} depends on whether training or inference
+produces denormals in the relevant operator, which itself depends on
+architecture, initialisation, scale, and activation distribution.
 
 \paragraph{Memory layout and kernel autotuning.}
-Frameworks such as cuDNN run an autotuning phase that selects
-kernel implementations based on input shape and device state.
-The choice may differ across runs, leading to identical inputs
-producing slightly different outputs. The relevant calibration
-is at \layer{1}--\layer{2}: the autotuner's selection policy.
+Frameworks and libraries can select kernel implementations based on
+input shape, memory layout, device state, and benchmarking policy.
+The selected implementation may differ across configurations or
+runs, leading to small numerical differences. The relevant condition
+sits at \layer{1}--\layer{2}: the policy that selects the operation
+implementation. A UPL claim would require not merely observing the
+policy, but mapping it to the representational and output boundary
+under test.
 
 \paragraph{Thermal regime and operating temperature.}
-A chip's operating temperature $T$ is a continuous calibration
-with well-documented influence on lower-layer error rates.
-Two physical mechanisms apply. First, Johnson--Nyquist noise gives
-a thermal floor on the voltage fluctuation across any resistive
-element of resistance $R$ in bandwidth $B$:
+A chip's operating temperature $T$ is a continuous calibration with
+well-documented influence on lower-layer error rates and margins.
+Two physical mechanisms apply. First, Johnson--Nyquist noise gives a
+thermal floor on the voltage fluctuation across any resistive element
+of resistance $R$ in bandwidth $B$:
 \begin{equation}
 \langle v_n^2 \rangle \;=\; 4 k_B T R B,
 \label{eq:johnson}
 \end{equation}
 where $k_B$ is the Boltzmann constant. Higher $T$ raises the noise
-floor, reducing margin against signal-discrimination errors.
-Second, thermally activated failure rates --- charge-leakage,
+floor, reducing margin against signal-discrimination errors. Second,
+thermally activated failure rates --- charge-leakage,
 single-event upsets, and certain refresh-related DRAM errors ---
 follow an Arrhenius dependence:
 \begin{equation}
@@ -672,74 +781,76 @@ follow an Arrhenius dependence:
 where $\lambda_0$ is a baseline rate and $E_a$ is the activation
 energy of the relevant failure mode. Large-scale field studies of
 production DRAM \citep{schroeder2009} confirm that error rates rise
-strongly with operating temperature, and architectural studies
-have documented disturbance-error mechanisms whose rate depends on
-both temperature and access pattern \citep{kim2014}. Within the
-present framework, $T$ is a chip-level calibration whose
-configuration is partially within operator control (cooling,
-workload placement, throttling policy) and partially outside it
-(ambient temperature, transient bursts). A layer-effect claim that
-implicates a thermal regime would require $\witness{exec}$ to
-include a temperature trace and $\witness{ruleout}$ to exclude
-attribution to concurrent calibrations.
+strongly with operating temperature, and architectural studies have
+documented disturbance-error mechanisms whose rate depends on both
+temperature and access pattern \citep{kim2014}. Within the present
+framework, $T$ is a lower-layer execution condition whose
+configuration is partially within operator control (cooling, workload
+placement, throttling policy) and partially outside it (ambient
+temperature, transient bursts). A layer-effect claim that implicates
+a thermal regime would require $\witness{exec}$ to include a
+temperature trace and $\witness{ruleout}$ to exclude attribution to
+concurrent calibrations.
 
 \medskip
 
 Each calibration above is, in UPL terms, a hypothesis about a
-candidate signal. None is here claimed to be a witnessed,
-mapped, checked, and ruled-out cause of any specific AI behaviour
-under any specific boundary. The contribution of this paper is
-the vocabulary in which such claims could be made and adjudicated.
-The bounded foundational claim of UPL \citep{hooker2020,
-sculley2015} is precisely that: for specific behaviours, under
-stated boundaries, with explicit mapping and check, a chip-level
-trace \emph{can} be made claim-bearing for an upper-layer output.
-The reduction is local, bounded, witnessed.
+candidate signal. The survey itself does not claim any listed
+calibration to be a witnessed, mapped, checked, and ruled-out cause
+of any specific AI behaviour under any specific boundary. The one
+executed instance reported in this draft is the explicitly bounded
+\textsc{demo\_06} precision-contrast case in
+Section~\ref{sec:discussion}. The bounded foundational claim of UPL
+\citep{hooker2020, sculley2015} is precisely that: for specific
+behaviours, under stated boundaries, with explicit mapping and
+check, a lower-layer execution trace \emph{can} be made
+claim-bearing for an upper-layer output. The reduction is local,
+bounded, witnessed.
 
 % ============================================================
 \section{Postulates of Reverse Inference and Toy-AI Feedback}
 \label{sec:reverse}
 
-The framework presented so far runs in the forward direction:
-from a stated chip-level calibration $\witness{exec}$ through the
-bridge to an upper-layer output boundary $\witness{check}$.
-Two symmetric questions arise. The first concerns
-\emph{reverse inference} --- tracing from an observed AI anomaly
-back to a candidate chip-level cause. The second concerns
-\emph{toy-AI feedback} --- the observation that a small, controlled
-AI computation itself produces a measurable signature at the chip
-level, which provides an empirical entry point to the framework.
+The framework presented so far runs in the forward direction: from a
+stated execution condition $\witness{exec}$ through the bridge to an
+upper-layer output boundary $\witness{check}$. Two symmetric
+questions arise. The first concerns \emph{reverse inference} ---
+tracing from an observed AI anomaly back to a candidate lower-layer
+execution condition. The second concerns \emph{toy-AI feedback} ---
+the observation that a small, controlled AI computation itself
+produces a measurable signature at the chip/runtime level, which
+provides an empirical entry point to the framework.
 
 \subsection{Reverse inference}
 
 \begin{quote}\itshape
-Given an observed anomaly at the AI output boundary, can the same
+Given an observed anomaly at the AI-output boundary, can the same
 witness vocabulary be used in reverse, to identify a candidate
-chip-level execution condition that may have produced it?
+lower-layer execution condition that may have produced it?
 \end{quote}
 
-We do not assume this is possible in general. We postulate it
-as a research direction, subject to the same bounded-warrant
-discipline as the forward direction.
+We do not assume this is possible in general. We postulate it as a
+research direction, subject to the same bounded-warrant discipline
+as the forward direction.
 
 \begin{postulate}[Reverse inference]\label{post:reverse}
-Let $K^*$ be a claim of the form ``output anomaly $A$ at
-\layer{4} was carried by chip-level condition $c \in \mathcal{C}$''
-where $\mathcal{C}$ is a finite catalogue of candidate
-calibrations. Then under appropriate assumptions $\Gamma$, a
-reverse-direction UPL judgment
+Let $K^*$ be a claim of the form ``output anomaly $A$ at \layer{4}
+was carried by lower-layer execution condition $c \in \mathcal{C}$''
+where $\mathcal{C}$ is a finite catalogue of candidate conditions.
+Then under appropriate assumptions $\Gamma$, a reverse-direction UPL
+judgment
 \[
 \Gamma \;\vdash\; K^* \;@\; B \;\Leftarrow\;
 \bigl(\witness{anomaly} \oplus \witness{exec}^{*} \oplus \witness{map}^{*} \oplus \witness{contract} \oplus \witness{check}^{*} \oplus \witness{ruleout}^{*}\bigr)
 \;:\; \sigma
 \]
-may be adjudicated with the same status vocabulary
-$\Sigma$ as the forward direction, provided:
+may be adjudicated with the same status vocabulary $\Sigma$ as the
+forward direction, provided:
 \begin{itemize}
-\item the anomaly is observable at \layer{4} (or higher) and
-admits a stated boundary $B$;
+\item the anomaly is observable at \layer{4} or higher and admits a
+stated boundary $B$;
 \item the candidate catalogue $\mathcal{C}$ is finite, enumerated,
-and disjoint;
+and sufficiently disjoint for the selected profile;
 \item the inverse map $\witness{map}^*$ can be constructed from
 \layer{3} representational state back to a specific candidate
 $c \in \mathcal{C}$;
@@ -762,168 +873,238 @@ A reverse-direction judgment reaches \statuslabel{checked} for
 candidate $c_i$ when the posterior concentrates on $c_i$ above a
 stated threshold, and when $\witness{ruleout}^*$ supplies witnesses
 that the remaining candidates are excluded under $B$. Equation
-\eqref{eq:bayes} is not a procedure but a constraint on what
-counts as a defensible reverse-inference judgment.
+\eqref{eq:bayes} is not a procedure but a constraint on what counts
+as a defensible reverse-inference judgment.
 
 The postulate is consequential. It says the bounded-warrant
 framework is in principle bi-directional, even though the
-information-theoretic challenges are asymmetric. Forward
-inference faces the data-processing inequality
-\eqref{eq:dpi}: information may be lost in propagation, so a
-strong chip-level signal may not survive to be witnessed at
-\layer{4}. Reverse inference faces non-identifiability: many
-chip-level events may produce the same observable anomaly, so
-$\witness{ruleout}^*$ must work harder.
+information-theoretic challenges are asymmetric. Forward inference
+faces the data-processing inequality \eqref{eq:dpi}: information may
+be lost in propagation, so a strong lower-layer signal may not
+survive to be witnessed at \layer{4}. Reverse inference faces
+non-identifiability: many lower-layer events may produce the same
+observable anomaly, so $\witness{ruleout}^*$ must work harder.
 
-Reverse inference connects naturally to causal-inference
-frameworks \citep{pearl2009} and to the literature on
-information-flow tracking in security \citep{kocher2019}.
-We do not extend the formal connection in this paper.
-We note only that the bounded-warrant vocabulary is symmetric in
-form, and asymmetric only in the difficulty of constructing the
-required witnesses.
+Reverse inference connects naturally to causal-inference frameworks
+\citep{pearl2009} and to the literature on information-flow tracking
+in security \citep{kocher2019}. We do not extend the formal
+connection in this paper. We note only that the bounded-warrant
+vocabulary is symmetric in form, and asymmetric only in the
+difficulty of constructing the required witnesses.
 
 \subsection{Toy-AI feedback as an empirical entry point}
 \label{sec:toyai}
 
 Reverse inference (Postulate~\ref{post:reverse}) carries a
 constructive obstacle: how is $\witness{map}^*$ to be defined in
-practice? The forward direction draws on hardware counters and
-framework instrumentation; the reverse direction needs a procedure
-that takes an observed output anomaly and produces a posterior
-over chip-level candidates. We postulate that the simplest tractable
-setting in which this map is constructible is the case of a
-deterministic toy AI.
+practice? The forward direction draws on hardware counters,
+runtime metadata, and framework instrumentation; the reverse
+direction needs a procedure that takes an observed output anomaly
+and produces a posterior over lower-layer candidates. We postulate
+that the simplest tractable setting in which this map is
+constructible is the case of a deterministic toy AI.
 
 \begin{postulate}[Toy-AI feedback]\label{post:toyai}
-Let $\mathcal{M}$ be a deterministic, fully specified
-computation --- a \emph{toy AI} --- confined within hardware
-boundary $B$. Let $X_3(\mathcal{M}, t)$ denote $\mathcal{M}$'s
-\layer{3} representational state at time $t$, and let
-$S(\mathcal{M}, t) \in \mathcal{S}$ denote the chip-level
-signature produced as a by-product of $\mathcal{M}$'s execution
---- comprising thermal trajectory, instantaneous power draw,
-performance-counter readings, cache footprint, and memory-bus
-timing. Then under appropriate $\Gamma$ and over a stated horizon,
+Let $\mathcal{M}$ be a deterministic, fully specified computation
+--- a \emph{toy AI} --- confined within hardware/runtime boundary
+$B$. Let $X_3(\mathcal{M}, t)$ denote $\mathcal{M}$'s \layer{3}
+representational state at time $t$, and let
+$S(\mathcal{M}, t) \in \mathcal{S}$ denote the lower-layer signature
+produced as a by-product of $\mathcal{M}$'s execution --- comprising
+thermal trajectory, instantaneous power draw, performance-counter
+readings, cache footprint, and memory-bus timing. Then under
+appropriate $\Gamma$ and over a stated horizon,
 \begin{equation}
 I\bigl(S(\mathcal{M}, t)\,;\, X_3(\mathcal{M}, t) \,\big|\, \Gamma, B\bigr) \;>\; 0.
 \label{eq:toyai}
 \end{equation}
 \end{postulate}
 
-The postulate asserts that the chip-level signature is
-non-trivially informative about the toy AI's internal state.
-This is not a strong claim --- the right-hand side need not be
-large --- but it is sufficient to make reverse inference
-non-vacuous in at least one setting. By Fano's inequality
-\eqref{eq:fano} applied in the reverse direction, a non-zero
-mutual information lower-bounds the achievable adjudication
-accuracy from below; conversely, an instrumented toy-AI setting
-provides a concrete construction of $\witness{exec}^*$,
-$\witness{map}^*$, and ultimately $\witness{ruleout}^*$.
+The postulate asserts that the lower-layer signature is
+non-trivially informative about the toy AI's internal state. This is
+not a strong claim --- the right-hand side need not be large --- but
+it is sufficient to make reverse inference non-vacuous in at least
+one setting. By Fano's inequality \eqref{eq:fano}, if the
+conditional entropy $H(S \mid X_3, \Gamma, B)$ remains high, any
+reverse adjudicator retains a non-zero lower bound on error.
+Estimating $I(S; X_3)$ therefore quantifies how informative the
+signature can be, without by itself guaranteeing successful reverse
+adjudication; an instrumented toy-AI setting nevertheless provides a
+concrete construction of $\witness{exec}^*$, $\witness{map}^*$, and
+ultimately $\witness{ruleout}^*$.
 
 The toy-AI setting is empirically tractable in a way that
 production-scale systems are not. The model is small enough to be
-fully characterised; the hardware boundary $B$ is small enough to
-be instrumented; the computation is deterministic enough that
-repeated execution yields a statistical estimate of
-$I(S; X_3)$. The framework's reverse-inference postulate is
-therefore reduced, in its first instantiation, to a controlled
-measurement problem: can a chip-level signature be shown to
-carry $\tau$ bits of information about a toy AI's
-representational state within stated $B$?
+fully characterised; the boundary $B$ is small enough to be
+instrumented; the computation is deterministic enough that repeated
+execution yields a statistical estimate of $I(S; X_3)$. The
+framework's reverse-inference postulate is therefore reduced, in its
+first instantiation, to a controlled measurement problem: can a
+lower-layer signature be shown to carry $\tau$ bits of information
+about a toy AI's representational state within stated $B$?
 
 \begin{remark}
 Postulate~\ref{post:toyai} does not assume the converse for
-production systems. Scaling from toy-AI feedback to bounded
-reverse inference on production AI is left open. The postulate
-serves as the framework's empirical entry point, not as a
-universal claim.
+production systems. Scaling from toy-AI feedback to bounded reverse
+inference on production AI is left open. The postulate serves as a
+proposed empirical entry point for the reverse direction, not as a
+universal claim. The first executed instance reported in this paper
+is forward rather than reverse: it tests a toy precision-contrast
+layer-effect claim (Section~\ref{sec:discussion}).
 \end{remark}
+
+% ============================================================
+\section{Toward UPL Test Profiles}
+\label{sec:profiles}
+
+A single checked instance is useful, but it is not yet a standard.
+For UPL to become reusable, claims must be grouped into profiles
+that specify allowed claims, required witnesses, forbidden
+interpretations, and adjudication rules. A profile turns the general
+judgment form into an executable test family.
+
+\renewcommand{\arraystretch}{1.25}
+\begin{table}[t]
+\centering
+\caption{Candidate UPL profiles.}
+\label{tab:profiles}
+\small
+\begin{tabularx}{\textwidth}{l X X}
+\toprule
+\textbf{Profile} & \textbf{Purpose} & \textbf{Typical forbidden claims} \\
+\midrule
+UPL-P0 Reproducibility & Minimal toy reproducibility: code, environment, input, seed, output trace, judgment file. & Hardware causation, production safety, general reliability. \\
+UPL-P1 Numeric execution & Precision, datatype, rounding, quantisation, and arithmetic-mode claims. & General model quality or universal precision behaviour. \\
+UPL-P2 Runtime/kernel & Deterministic kernels, backend selection, batching, reduction order, scheduling-sensitive execution. & Claims about silicon defects or long-term reliability. \\
+UPL-P3 Accelerator path & CPU/GPU/TPU/NPU/backend-path comparisons under matched workload boundaries. & Certification of accelerator correctness outside $B$. \\
+UPL-P4 Environmental execution & Temperature, throttling, power cap, clocking, memory pressure, sustained-load conditions. & Broad thermal reliability or field-failure claims without external qualification. \\
+UPL-P5 Production audit & Signed artifacts, runtime attestation, deployment provenance, exception logs, production-boundary adjudication. & Safety certification or legal compliance unless separately witnessed. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\noindent
+Every profile should specify:
+\begin{itemize}
+\item required witness components and minimum metadata;
+\item allowed claim forms and forbidden claim forms;
+\item boundary requirements and threshold conventions;
+\item accepted check procedures and ruleout obligations;
+\item permitted statuses and failure modes;
+\item reproducibility requirements, including independent rerun rules.
+\end{itemize}
+
+In this roadmap, \textsc{demo\_06} is best understood as an early
+UPL-P1 instance: a bounded numeric-execution claim involving fp32
+versus fp16 precision contrast in a toy classifier. It is not yet a
+profile, but it is a profile seed. A future sequence might include
+TF32-like mode contrast, deterministic versus non-deterministic
+kernels, batching and reduction-order effects, CPU versus GPU
+execution path, thermal/throttling boundaries, and a first reverse
+inference toy case. Each instance should preserve the same judgment
+shape:
+\[
+\Gamma \;\vdash\; K \;@\; B \;\Leftarrow\; W \;:\; \sigma.
+\]
+
+The next milestone after additional demonstrations is independent
+reproduction: another party should be able to run the profile on a
+different machine, either obtain the same boundary-status relation,
+or report a boundary change explicitly. Only then does UPL begin to
+move from paper vocabulary to shared test practice.
 
 % ============================================================
 \section{Discussion}
 \label{sec:discussion}
 
 \paragraph{Scope and first witnessed instance.}
-This paper presents the framework within which layer-effect
-claims can be made. The next research step described in
-earlier drafts --- the construction of a single, fully
-witnessed instance of a layer-effect claim across the
-\layer{2}--\layer{3} bridge --- has now been executed.
+This paper presents the framework within which AI-relevant
+execution-condition claims can be made. The next research step
+described in earlier drafts --- the construction of a single, fully
+witnessed instance of a layer-effect claim across the \layer{2}--
+\layer{3} bridge --- has now been executed.
 
-Under a local-machine, single-venv boundary using PyTorch
-2.12.0 and a deterministic toy binary linear classifier
-($d = 16$), same-precision determinism held in both fp32
-and fp16. The cross-precision contrast yielded zero control
-flips and one margin flip. Under the declared boundary $B$,
-the UPL layer-effect claim
+Under a local-machine, single-venv boundary using PyTorch 2.12.0
+and a deterministic toy binary linear classifier ($d = 16$),
+same-precision determinism held in both fp32 and fp16. The
+cross-precision contrast yielded zero control flips and one margin
+flip. Under the declared boundary $B$, the UPL layer-effect claim
 \begin{quote}\itshape\small
-``Changing only the execution precision from fp32 to fp16
-in the \layer{2} dot-product operation changes the measured
-margin representation $z = \mathbf{w}\cdot\mathbf{x} + b$
-enough to cross the predefined binary decision boundary for
-at least one input in $X_{\mathrm{margin}}$, while
-$X_{\mathrm{control}}$ remains invariant''
+``Changing only the execution precision from fp32 to fp16 in the
+\layer{2} dot-product operation changes the measured margin
+representation $z = \mathbf{w}\cdot\mathbf{x} + b$ enough to cross
+the predefined binary decision boundary for at least one input in
+$X_{\mathrm{margin}}$, while $X_{\mathrm{control}}$ remains
+invariant''
 \end{quote}
-was adjudicated with $\sigma = \statuslabel{checked}$. The
-full witness chain
+was adjudicated with $\sigma = \statuslabel{checked}$. The full
+witness chain
 $\bigl(\witness{input} \oplus \witness{exec} \oplus
 \witness{map} \oplus \witness{contract} \oplus \witness{check}
 \oplus \witness{ruleout}\bigr)$
 is available in the project repository~\cite{vasen2026demo06}.
 
-This establishes the feasibility of the UPL witness discipline
-in a toy precision-contrast setting. It does not establish
-broader claims about large language models, production AI
-systems, or hardware behaviour generally. The bounding is
-intentional and follows directly from the framework's
+This establishes the feasibility of the UPL witness discipline in a
+toy precision-contrast setting. It does not establish broader claims
+about large language models, production AI systems, chip defects,
+semiconductor reliability, or hardware behaviour generally. The
+bounding is intentional and follows directly from the framework's
 discipline.
 
 \paragraph{Relation to existing fields.}
 UPL is not an AI safety framework. It is not a chip security
-framework. It is a provenance vocabulary that may inform both.
-AI safety has tools for talking about output behaviour; chip
-security has tools for talking about microarchitectural state.
-Neither field, at present, has a vocabulary for adjudicating
-claims that link the two. This paper proposes one. Whether the
-vocabulary is adopted depends on whether the bounded warrants it
-demands can in fact be constructed.
+framework. It is not a semiconductor qualification framework. It is
+a provenance and adjudication vocabulary that may inform all three.
+AI safety has tools for talking about output behaviour; chip security
+has tools for talking about microarchitectural state; semiconductor
+test and reliability have tools for talking about device access,
+defects, stress, and qualification. UPL asks a different question:
+when does evidence from one of these domains become an admissible
+warrant for a bounded AI-output claim?
 
 \paragraph{What this paper does not claim.}
-The framework does not assume that chip-level conditions matter
-for AI semantics. It does not assert that any specific calibration
-in Section~\ref{sec:calibrations} causes any specific behaviour
-under any specific boundary. It does not claim that reverse
-inference is achievable in any specific case. It claims only that
-a bounded vocabulary exists in which such claims could be stated,
-adjudicated, and limited.
+The framework does not assume that lower-layer execution conditions
+matter for AI semantics. It does not assert that any specific
+calibration in Section~\ref{sec:calibrations} causes any specific
+behaviour under any specific boundary. It does not claim that reverse
+inference is achievable in any specific case. It does not replace
+JTAG, DFT, ATE, JEDEC stress testing, AEC qualification, ISO 26262
+safety lifecycle analysis, or production audit controls. It claims
+only that a bounded vocabulary exists in which AI-relevant
+execution-condition claims can be stated, adjudicated, and limited.
 
 \paragraph{Open questions.}
-At least four:
+At least five:
 \begin{itemize}
 \item What measurement instruments can construct $\witness{map}$
 across the L2--L3 bridge for current production frameworks?
-\item Under what conditions is $\witness{ruleout}$
-constructible without exhaustive enumeration of $\mathcal{C}$?
+\item Under what conditions is $\witness{ruleout}$ constructible
+without exhaustive enumeration of $\mathcal{C}$?
 \item How does the framework compose across multiple bridges
 (e.g.\ \layer{0}-\layer{2} and \layer{2}-\layer{3} jointly)?
 \item Does the reverse-inference postulate
-(Postulate~\ref{post:reverse}) admit a constructive proof
-under bounded assumptions, or does it require
-case-by-case argument?
+(Postulate~\ref{post:reverse}) admit a constructive proof under
+bounded assumptions, or does it require case-by-case argument?
+\item What is the smallest profile schema that allows independent
+UPL reproductions without smuggling in unbounded hardware or AI
+claims?
 \end{itemize}
 
 \paragraph{A note on terminology.}
-We have deliberately avoided the language of \emph{fault},
-\emph{attack}, and \emph{breach} throughout. These terms carry
-witness commitments that the present framework does not yet
-support. A fault asserts a failure of specification; an attack
-asserts intent and control; a breach asserts a witnessed
-crossing of a security boundary. The framework presented here
-talks instead of \emph{execution conditions}, \emph{candidate
-signals}, and \emph{layer-effect claims}. The terminological
-restraint is part of the bounded-warrant discipline.
+We have deliberately avoided using \emph{fault}, \emph{attack},
+\emph{breach}, \emph{certification}, and \emph{compliance} as
+operative labels for the claims made in this framework. Where such
+terms appear in the paper, they refer to neighbouring literatures or
+to distinctions the framework deliberately does not claim. These
+terms carry witness commitments the present framework does not yet
+support: a fault asserts a failure of specification; an attack
+asserts intent and control; a breach asserts a witnessed crossing of
+a security boundary; certification and compliance assert satisfaction
+of an external standard. The framework presented here talks instead
+of \emph{execution conditions}, \emph{candidate signals},
+\emph{boundaries}, \emph{witnesses}, and \emph{layer-effect claims}.
+The terminological restraint is part of the bounded-warrant
+discipline.
 
 % ============================================================
 \section*{Acknowledgements}

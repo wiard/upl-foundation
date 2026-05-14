@@ -13,8 +13,12 @@ import torch
 
 
 DEFAULT_D = 16
-DEFAULT_SCALE = 256.0
+DEFAULT_SCALE = 0.0512
 DEFAULT_MODEL_PATH = Path(__file__).with_name("toy_model.pt")
+DEFAULT_CONTROL_TARGETS = (-0.30, -0.20, -0.12, 0.12, 0.20, 0.30)
+DEFAULT_MARGIN_TARGETS = (-3e-4, -1.5e-4, -5e-5, 5e-5, 1.5e-4, 3e-4)
+CONTROL_THRESHOLD = 0.1
+MARGIN_THRESHOLD = 3e-4
 
 
 def sha256_file(path: Path) -> str:
@@ -23,6 +27,12 @@ def sha256_file(path: Path) -> str:
         for chunk in iter(lambda: handle.read(65536), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def configure_torch_runtime() -> None:
+    torch.use_deterministic_algorithms(True)
+    if torch.backends.mkldnn.is_available():
+        torch.backends.mkldnn.deterministic = True
 
 
 def build_parameters(d: int = DEFAULT_D, scale: float = DEFAULT_SCALE) -> tuple[torch.Tensor, torch.Tensor]:
@@ -63,24 +73,47 @@ def compute_logit(x: torch.Tensor, w: torch.Tensor, b: torch.Tensor, precision: 
     if precision not in {"fp32", "fp16"}:
         raise ValueError(f"precision must be 'fp32' or 'fp16', got {precision}")
 
-    if precision == "fp32":
-        x_t = x.to(torch.float32)
-        w_t = w.to(torch.float32)
-        b_t = b.to(torch.float32)
-    else:
-        x_t = x.to(torch.float16)
-        w_t = w.to(torch.float16)
-        b_t = b.to(torch.float16)
-
-    logit = torch.dot(w_t, x_t) + b_t
-    return logit.to(torch.float32)
+    target_dtype = torch.float32 if precision == "fp32" else torch.float16
+    x_t = x.to(target_dtype)
+    w_t = w.to(target_dtype)
+    b_t = b.to(target_dtype)
+    logits = x_t @ w_t + b_t
+    return logits.to(torch.float32)
 
 
 def predict_sign(logit: torch.Tensor) -> int:
     return 1 if float(logit.item()) >= 0.0 else -1
 
 
+def logits_to_signs(logits: torch.Tensor) -> torch.Tensor:
+    return torch.where(logits >= 0.0, torch.ones_like(logits), -torch.ones_like(logits))
+
+
+def alpha_for_target_logit(target_logit: float, b: torch.Tensor, d: int) -> float:
+    return (target_logit - float(b.item())) / math.sqrt(d)
+
+
+def construct_inputs_for_targets(d: int, b: torch.Tensor, targets: tuple[float, ...]) -> torch.Tensor:
+    rows = []
+    for target in targets:
+        alpha = alpha_for_target_logit(target, b, d)
+        rows.append(torch.full((d,), alpha, dtype=torch.float32))
+    return torch.stack(rows, dim=0)
+
+
+def construct_input_sets(
+    d: int,
+    b: torch.Tensor,
+    control_targets: tuple[float, ...] = DEFAULT_CONTROL_TARGETS,
+    margin_targets: tuple[float, ...] = DEFAULT_MARGIN_TARGETS,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    x_control = construct_inputs_for_targets(d, b, control_targets)
+    x_margin = construct_inputs_for_targets(d, b, margin_targets)
+    return x_control, x_margin
+
+
 def self_check(d: int = DEFAULT_D, scale: float = DEFAULT_SCALE, model_path: Path = DEFAULT_MODEL_PATH) -> dict[str, Any]:
+    configure_torch_runtime()
     w, b = build_parameters(d=d, scale=scale)
     model_hash = save_parameters(model_path, w, b)
 

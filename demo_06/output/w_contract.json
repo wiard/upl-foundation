@@ -1,0 +1,12 @@
+{
+  "content_hash": "a2224fddec782871758ad14d60c79fd4a5b527cbed61fd83298e4cbf62e67fbc",
+  "created_at_utc": "2026-05-14T04:35:34+00:00",
+  "payload": {
+    "binary_decision_rule": "class = +1 if z >= 0 else -1",
+    "failure_condition": "all witnesses present but margin_flips = 0",
+    "flip_definition": "flip = class_fp32 != class_fp16",
+    "prerequisite": "same-precision determinism must pass before cross-precision contrast",
+    "success_condition": "control_flips = 0 and margin_flips >= 1"
+  },
+  "witness_id": "W_contract"
+}

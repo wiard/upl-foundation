@@ -1,0 +1,57 @@
+{
+  "content_hash": "22e6c8b12168c99bb8fa89f07a732e7b0b2c81a222fb5568917fbfe8a7614345",
+  "created_at_utc": "2026-05-14T04:35:34+00:00",
+  "payload": {
+    "control_flips": 0,
+    "experiment_1": {
+      "deterministic_fp16": true,
+      "deterministic_fp32": true,
+      "hash_a_fp16": "dfafcda9cd2ea010450e6a58f0a781797aefe103b5856e3991148212f605d226",
+      "hash_a_fp32": "2e7cfd5abb95adce21e902ea0abbd457a2f5ea1fbfbed19deada6e7cabe4324f",
+      "hash_b_fp16": "dfafcda9cd2ea010450e6a58f0a781797aefe103b5856e3991148212f605d226",
+      "hash_b_fp32": "2e7cfd5abb95adce21e902ea0abbd457a2f5ea1fbfbed19deada6e7cabe4324f"
+    },
+    "experiment_2": {
+      "control_flips": 0,
+      "margin_flips": 1
+    },
+    "margin_flips": 1,
+    "output_trace": {
+      "control_flips": 0,
+      "control_labels_fp16": [
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "control_labels_fp32": [
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "margin_flips": 1,
+      "margin_labels_fp16": [
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "margin_labels_fp32": [
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "witness_id": "W_check"
+}

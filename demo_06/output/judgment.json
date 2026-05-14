@@ -1,0 +1,524 @@
+{
+  "B": {
+    "control_condition": "|w\u00b7x + b| > 0.1",
+    "d": 16,
+    "machine": "single local machine",
+    "margin_condition": "|w\u00b7x + b| <= 0.0003",
+    "precision_change": "fp32 -> fp16 only",
+    "python_install": "single interpreter or venv",
+    "pytorch_version": "2.12.0",
+    "toy": "binary linear classifier"
+  },
+  "Gamma": [
+    "No training was run.",
+    "Inputs were constructed in code only.",
+    "One machine, one Python install, one PyTorch version.",
+    "The claim is bounded to this toy binary linear classifier and declared precision settings."
+  ],
+  "K_1": null,
+  "K_2": "Under boundary B, changing only the execution precision from fp32 to fp16 in the L2 dot-product operation changes the measured margin representation z = w \u00b7 x + b enough to cross the predefined binary decision boundary for at least one input in X_margin, while X_control remains invariant.",
+  "canonical_witnesses": {
+    "W_check": {
+      "content_hash": "22e6c8b12168c99bb8fa89f07a732e7b0b2c81a222fb5568917fbfe8a7614345",
+      "created_at_utc": "2026-05-14T04:35:34+00:00",
+      "payload": {
+        "control_flips": 0,
+        "experiment_1": {
+          "deterministic_fp16": true,
+          "deterministic_fp32": true,
+          "hash_a_fp16": "dfafcda9cd2ea010450e6a58f0a781797aefe103b5856e3991148212f605d226",
+          "hash_a_fp32": "2e7cfd5abb95adce21e902ea0abbd457a2f5ea1fbfbed19deada6e7cabe4324f",
+          "hash_b_fp16": "dfafcda9cd2ea010450e6a58f0a781797aefe103b5856e3991148212f605d226",
+          "hash_b_fp32": "2e7cfd5abb95adce21e902ea0abbd457a2f5ea1fbfbed19deada6e7cabe4324f"
+        },
+        "experiment_2": {
+          "control_flips": 0,
+          "margin_flips": 1
+        },
+        "margin_flips": 1,
+        "output_trace": {
+          "control_flips": 0,
+          "control_labels_fp16": [
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "control_labels_fp32": [
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "margin_flips": 1,
+          "margin_labels_fp16": [
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "margin_labels_fp32": [
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      },
+      "witness_id": "W_check"
+    },
+    "W_contract": {
+      "content_hash": "a2224fddec782871758ad14d60c79fd4a5b527cbed61fd83298e4cbf62e67fbc",
+      "created_at_utc": "2026-05-14T04:35:34+00:00",
+      "payload": {
+        "binary_decision_rule": "class = +1 if z >= 0 else -1",
+        "failure_condition": "all witnesses present but margin_flips = 0",
+        "flip_definition": "flip = class_fp32 != class_fp16",
+        "prerequisite": "same-precision determinism must pass before cross-precision contrast",
+        "success_condition": "control_flips = 0 and margin_flips >= 1"
+      },
+      "witness_id": "W_contract"
+    },
+    "W_exec": {
+      "content_hash": "4e58a5891d02f19def8f32a2061d63b1b50576580097eb323ff9f95269adfc02",
+      "created_at_utc": "2026-05-14T04:35:34+00:00",
+      "payload": {
+        "device": "cpu",
+        "no_external_data": true,
+        "no_training": true,
+        "pip_freeze": [
+          "filelock==3.29.0",
+          "fsspec==2026.4.0",
+          "Jinja2==3.1.6",
+          "MarkupSafe==3.0.3",
+          "mpmath==1.3.0",
+          "networkx==3.6.1",
+          "setuptools==81.0.0",
+          "sympy==1.14.0",
+          "torch==2.12.0",
+          "typing_extensions==4.15.0"
+        ],
+        "precision_settings": {
+          "default_dtype": "float32",
+          "deterministic_algorithms": true,
+          "mkldnn_deterministic": true
+        },
+        "python_implementation": "CPython",
+        "python_version": "3.13.5 (main, Jun 11 2025, 15:36:57) [Clang 17.0.0 (clang-1700.0.13.3)]",
+        "torch_version": "2.12.0"
+      },
+      "witness_id": "W_exec"
+    },
+    "W_input": {
+      "content_hash": "4f804dce00302f51e3ec0791f04e37c9382d1fafe7241654901fa8bba7cd030e",
+      "created_at_utc": "2026-05-14T04:35:34+00:00",
+      "payload": {
+        "b": -0.2048249989748001,
+        "control_count": 6,
+        "control_threshold": 0.1,
+        "d": 16,
+        "deterministic_input_construction_rule": "Each input row is a constant vector alpha\u00b71_d where alpha is chosen so that w\u00b7x + b equals a predefined target logit. Control targets are (-0.3, -0.2, -0.12, 0.12, 0.2, 0.3); margin targets are (-0.0003, -0.00015, -5e-05, 5e-05, 0.00015, 0.0003).",
+        "margin_count": 6,
+        "margin_threshold": 0.0003,
+        "model_sha256": "7127180009e280aa417e02b1dd6dde1385cbc32866840a0e82e4499264f8284c",
+        "w": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "x_control": [
+          [
+            -0.023793749511241913,
+            -0.023793749511241913,
+            -0.023793749511241913,
+            -0.023793749511241913,
+            -0.023793749511241913,
+            -0.023793749511241913,
+            -0.023793749511241913,
+            -0.023793749511241913,
+            -0.023793749511241913,
+            -0.023793749511241913,
+            -0.023793749511241913,
+            -0.023793749511241913,
+            -0.023793749511241913,
+            -0.023793749511241913,
+            -0.023793749511241913,
+            -0.023793749511241913
+          ],
+          [
+            0.0012062496971338987,
+            0.0012062496971338987,
+            0.0012062496971338987,
+            0.0012062496971338987,
+            0.0012062496971338987,
+            0.0012062496971338987,
+            0.0012062496971338987,
+            0.0012062496971338987,
+            0.0012062496971338987,
+            0.0012062496971338987,
+            0.0012062496971338987,
+            0.0012062496971338987,
+            0.0012062496971338987,
+            0.0012062496971338987,
+            0.0012062496971338987,
+            0.0012062496971338987
+          ],
+          [
+            0.02120625041425228,
+            0.02120625041425228,
+            0.02120625041425228,
+            0.02120625041425228,
+            0.02120625041425228,
+            0.02120625041425228,
+            0.02120625041425228,
+            0.02120625041425228,
+            0.02120625041425228,
+            0.02120625041425228,
+            0.02120625041425228,
+            0.02120625041425228,
+            0.02120625041425228,
+            0.02120625041425228,
+            0.02120625041425228,
+            0.02120625041425228
+          ],
+          [
+            0.08120624721050262,
+            0.08120624721050262,
+            0.08120624721050262,
+            0.08120624721050262,
+            0.08120624721050262,
+            0.08120624721050262,
+            0.08120624721050262,
+            0.08120624721050262,
+            0.08120624721050262,
+            0.08120624721050262,
+            0.08120624721050262,
+            0.08120624721050262,
+            0.08120624721050262,
+            0.08120624721050262,
+            0.08120624721050262,
+            0.08120624721050262
+          ],
+          [
+            0.10120625048875809,
+            0.10120625048875809,
+            0.10120625048875809,
+            0.10120625048875809,
+            0.10120625048875809,
+            0.10120625048875809,
+            0.10120625048875809,
+            0.10120625048875809,
+            0.10120625048875809,
+            0.10120625048875809,
+            0.10120625048875809,
+            0.10120625048875809,
+            0.10120625048875809,
+            0.10120625048875809,
+            0.10120625048875809,
+            0.10120625048875809
+          ],
+          [
+            0.12620624899864197,
+            0.12620624899864197,
+            0.12620624899864197,
+            0.12620624899864197,
+            0.12620624899864197,
+            0.12620624899864197,
+            0.12620624899864197,
+            0.12620624899864197,
+            0.12620624899864197,
+            0.12620624899864197,
+            0.12620624899864197,
+            0.12620624899864197,
+            0.12620624899864197,
+            0.12620624899864197,
+            0.12620624899864197,
+            0.12620624899864197
+          ]
+        ],
+        "x_control_sha256": "1151c45bb983bcb49e3a25022ed357840df72d1f127bcb4ecd414b71d3ab4603",
+        "x_margin": [
+          [
+            0.051131248474121094,
+            0.051131248474121094,
+            0.051131248474121094,
+            0.051131248474121094,
+            0.051131248474121094,
+            0.051131248474121094,
+            0.051131248474121094,
+            0.051131248474121094,
+            0.051131248474121094,
+            0.051131248474121094,
+            0.051131248474121094,
+            0.051131248474121094,
+            0.051131248474121094,
+            0.051131248474121094,
+            0.051131248474121094,
+            0.051131248474121094
+          ],
+          [
+            0.05116875097155571,
+            0.05116875097155571,
+            0.05116875097155571,
+            0.05116875097155571,
+            0.05116875097155571,
+            0.05116875097155571,
+            0.05116875097155571,
+            0.05116875097155571,
+            0.05116875097155571,
+            0.05116875097155571,
+            0.05116875097155571,
+            0.05116875097155571,
+            0.05116875097155571,
+            0.05116875097155571,
+            0.05116875097155571,
+            0.05116875097155571
+          ],
+          [
+            0.05119375139474869,
+            0.05119375139474869,
+            0.05119375139474869,
+            0.05119375139474869,
+            0.05119375139474869,
+            0.05119375139474869,
+            0.05119375139474869,
+            0.05119375139474869,
+            0.05119375139474869,
+            0.05119375139474869,
+            0.05119375139474869,
+            0.05119375139474869,
+            0.05119375139474869,
+            0.05119375139474869,
+            0.05119375139474869,
+            0.05119375139474869
+          ],
+          [
+            0.05121874809265137,
+            0.05121874809265137,
+            0.05121874809265137,
+            0.05121874809265137,
+            0.05121874809265137,
+            0.05121874809265137,
+            0.05121874809265137,
+            0.05121874809265137,
+            0.05121874809265137,
+            0.05121874809265137,
+            0.05121874809265137,
+            0.05121874809265137,
+            0.05121874809265137,
+            0.05121874809265137,
+            0.05121874809265137,
+            0.05121874809265137
+          ],
+          [
+            0.051243748515844345,
+            0.051243748515844345,
+            0.051243748515844345,
+            0.051243748515844345,
+            0.051243748515844345,
+            0.051243748515844345,
+            0.051243748515844345,
+            0.051243748515844345,
+            0.051243748515844345,
+            0.051243748515844345,
+            0.051243748515844345,
+            0.051243748515844345,
+            0.051243748515844345,
+            0.051243748515844345,
+            0.051243748515844345,
+            0.051243748515844345
+          ],
+          [
+            0.05128125101327896,
+            0.05128125101327896,
+            0.05128125101327896,
+            0.05128125101327896,
+            0.05128125101327896,
+            0.05128125101327896,
+            0.05128125101327896,
+            0.05128125101327896,
+            0.05128125101327896,
+            0.05128125101327896,
+            0.05128125101327896,
+            0.05128125101327896,
+            0.05128125101327896,
+            0.05128125101327896,
+            0.05128125101327896,
+            0.05128125101327896
+          ]
+        ],
+        "x_margin_sha256": "65df168800a3e84b6a33792c0973f3c00f0b01adb75e6b26a465252e1cbe7da5"
+      },
+      "witness_id": "W_input"
+    },
+    "W_map": {
+      "content_hash": "2bc8e674f1f2e89a4f5824ea6cc3964432003f52bc3e5a9aaf25692881523161",
+      "created_at_utc": "2026-05-14T04:35:34+00:00",
+      "payload": {
+        "l2_operation": "dtype-specific dot product + bias addition",
+        "l3_representation": "scalar margin/logit z = w \u00b7 x + b",
+        "op_trace": {
+          "control_logits_fp16": [
+            -0.300048828125,
+            -0.199951171875,
+            -0.1199951171875,
+            0.119873046875,
+            0.199951171875,
+            0.300048828125
+          ],
+          "control_logits_fp32": [
+            -0.30000001192092896,
+            -0.20000000298023224,
+            -0.11999999731779099,
+            0.11999998986721039,
+            0.20000000298023224,
+            0.30000001192092896
+          ],
+          "delta_control": [
+            4.881620407104492e-05,
+            -4.883110523223877e-05,
+            -4.880130290985107e-06,
+            0.00012694299221038818,
+            4.883110523223877e-05,
+            -4.881620407104492e-05
+          ],
+          "delta_margin": [
+            6.620585918426514e-05,
+            -2.7924776077270508e-05,
+            -4.999339580535889e-05,
+            4.999339580535889e-05,
+            2.7924776077270508e-05,
+            5.586445331573486e-05
+          ],
+          "margin_logits_fp16": [
+            -0.0003662109375,
+            -0.0001220703125,
+            0.0,
+            0.0,
+            0.0001220703125,
+            0.000244140625
+          ],
+          "margin_logits_fp32": [
+            -0.00030000507831573486,
+            -0.0001499950885772705,
+            -4.999339580535889e-05,
+            4.999339580535889e-05,
+            0.0001499950885772705,
+            0.00030000507831573486
+          ],
+          "operation": "dtype-specific dot product plus bias addition",
+          "representation": "scalar margin/logit z = w \u00b7 x + b"
+        },
+        "representation_trace": {
+          "control_signs_fp16": [
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "control_signs_fp32": [
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "margin_signs_fp16": [
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "margin_signs_fp32": [
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      },
+      "witness_id": "W_map"
+    },
+    "W_ruleout": {
+      "content_hash": "2735002b278e2d14b720d524aa572620b6875d4fe16c6cc7db926497165a0103",
+      "created_at_utc": "2026-05-14T04:35:34+00:00",
+      "payload": {
+        "alternative_dataset_present": false,
+        "deterministic_fp16": true,
+        "deterministic_fp32": true,
+        "fixed_boundary": true,
+        "fixed_inputs": true,
+        "fixed_model": true,
+        "hash_a_fp16": "dfafcda9cd2ea010450e6a58f0a781797aefe103b5856e3991148212f605d226",
+        "hash_a_fp32": "2e7cfd5abb95adce21e902ea0abbd457a2f5ea1fbfbed19deada6e7cabe4324f",
+        "hash_b_fp16": "dfafcda9cd2ea010450e6a58f0a781797aefe103b5856e3991148212f605d226",
+        "hash_b_fp32": "2e7cfd5abb95adce21e902ea0abbd457a2f5ea1fbfbed19deada6e7cabe4324f",
+        "no_external_data": true,
+        "no_randomness": true,
+        "other_model_present": false,
+        "randomness_sources": [],
+        "training_performed": false
+      },
+      "witness_id": "W_ruleout"
+    }
+  },
+  "claim_id": "UPL::DEMO_06::L2_L3::FWD::DTYPE_PRECISION::DOT_PRODUCT_MARGIN_SHIFT",
+  "control_flips": 0,
+  "limits": [
+    "One machine, one Python install, one PyTorch version.",
+    "One toy binary linear classifier only.",
+    "No claim extends beyond the declared boundary B.",
+    "No claim is made about larger AI systems or broader hardware behavior."
+  ],
+  "margin_flips": 1,
+  "notes": {
+    "no_external_data": true,
+    "no_push": true,
+    "no_training": true
+  },
+  "reasons": [
+    "Same-precision determinism held in both precisions.",
+    "No control flips occurred.",
+    "At least one margin input changed classification across precisions."
+  ],
+  "scenario": "B",
+  "sigma_diag": null,
+  "sigma_main": "checked",
+  "upl_name": "UPL::DEMO_06::L2_L3::FWD::DTYPE_PRECISION::DOT_PRODUCT_MARGIN_SHIFT",
+  "witness_paths": {
+    "W_check": "/Users/wiardvasen/upl-foundation-work/demo_06/output/w_check.json",
+    "W_contract": "/Users/wiardvasen/upl-foundation-work/demo_06/output/w_contract.json",
+    "W_exec": "/Users/wiardvasen/upl-foundation-work/demo_06/output/w_exec.json",
+    "W_input": "/Users/wiardvasen/upl-foundation-work/demo_06/output/w_input.json",
+    "W_map": "/Users/wiardvasen/upl-foundation-work/demo_06/output/w_map.json",
+    "W_ruleout": "/Users/wiardvasen/upl-foundation-work/demo_06/output/w_ruleout.json"
+  }
+}

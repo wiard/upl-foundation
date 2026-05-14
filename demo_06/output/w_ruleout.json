@@ -1,0 +1,22 @@
+{
+  "content_hash": "2735002b278e2d14b720d524aa572620b6875d4fe16c6cc7db926497165a0103",
+  "created_at_utc": "2026-05-14T04:35:34+00:00",
+  "payload": {
+    "alternative_dataset_present": false,
+    "deterministic_fp16": true,
+    "deterministic_fp32": true,
+    "fixed_boundary": true,
+    "fixed_inputs": true,
+    "fixed_model": true,
+    "hash_a_fp16": "dfafcda9cd2ea010450e6a58f0a781797aefe103b5856e3991148212f605d226",
+    "hash_a_fp32": "2e7cfd5abb95adce21e902ea0abbd457a2f5ea1fbfbed19deada6e7cabe4324f",
+    "hash_b_fp16": "dfafcda9cd2ea010450e6a58f0a781797aefe103b5856e3991148212f605d226",
+    "hash_b_fp32": "2e7cfd5abb95adce21e902ea0abbd457a2f5ea1fbfbed19deada6e7cabe4324f",
+    "no_external_data": true,
+    "no_randomness": true,
+    "other_model_present": false,
+    "randomness_sources": [],
+    "training_performed": false
+  },
+  "witness_id": "W_ruleout"
+}

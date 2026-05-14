@@ -1,0 +1,30 @@
+{
+  "content_hash": "4e58a5891d02f19def8f32a2061d63b1b50576580097eb323ff9f95269adfc02",
+  "created_at_utc": "2026-05-14T04:35:34+00:00",
+  "payload": {
+    "device": "cpu",
+    "no_external_data": true,
+    "no_training": true,
+    "pip_freeze": [
+      "filelock==3.29.0",
+      "fsspec==2026.4.0",
+      "Jinja2==3.1.6",
+      "MarkupSafe==3.0.3",
+      "mpmath==1.3.0",
+      "networkx==3.6.1",
+      "setuptools==81.0.0",
+      "sympy==1.14.0",
+      "torch==2.12.0",
+      "typing_extensions==4.15.0"
+    ],
+    "precision_settings": {
+      "default_dtype": "float32",
+      "deterministic_algorithms": true,
+      "mkldnn_deterministic": true
+    },
+    "python_implementation": "CPython",
+    "python_version": "3.13.5 (main, Jun 11 2025, 15:36:57) [Clang 17.0.0 (clang-1700.0.13.3)]",
+    "torch_version": "2.12.0"
+  },
+  "witness_id": "W_exec"
+}

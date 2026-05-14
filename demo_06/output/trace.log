@@ -1,0 +1,8 @@
+demo_06 start
+model saved: /Users/wiardvasen/upl-foundation-work/demo_06/toy_model.pt
+x_control size: (6, 16)
+x_margin size: (6, 16)
+deterministic_fp32=True
+deterministic_fp16=True
+control_flips=0
+margin_flips=1

@@ -4,7 +4,19 @@
 % AI-Relevant Execution Claims
 %
 % Author: Wiard Vasen
-% Status: v0.4a draft, exploration
+% Status: v0.5 draft, exploration
+% Changes from v0.4a:
+%   - New Section 2: Theoretical Foundations
+%     (Toulmin, Dewey, Pollock, Dung, Pearl, UPL as synthesis)
+%   - Section 11 (Profiles): added paragraph on UPL-WARP and
+%     the payment-decision function pi: Sigma -> Actions
+%   - Section 12 (Discussion): added paragraph on three
+%     witnessed instances across three domains
+%   - Abstract updated to reflect synthesis and broader scope
+%   - Outline in Introduction updated for new section
+%   - Bibliography: new entries for toulmin1958, dewey1938,
+%     pollock1974, dung1995, prakken2010, rubin1974,
+%     vasen2026ice, vasen2026warp
 % ============================================================
 
 \documentclass[11pt, a4paper]{article}
@@ -91,7 +103,7 @@
 \large\itshape The L2--L3 Bridge as a Bounded-Warrant Layer\\
 for AI-Relevant Execution Claims}
 \author{Wiard Vasen\\[2pt]\small\normalfont Independent Researcher\\\small\normalfont IJmuiden, the Netherlands}
-\date{\small Draft v0.4a --- May 2026}
+\date{\small Draft v0.5 --- May 2026}
 
 \begin{document}
 
@@ -113,27 +125,34 @@ claims about AI-output boundaries. This paper introduces the
 first becomes encoded representation, and develops the
 Universal Provenance Layer (UPL) as a \emph{bounded-warrant}
 framework for adjudicating AI-relevant execution-condition claims.
-The relevant unit is not the chip, runtime, or model in isolation,
-but the claim-bearing relation between a stated execution condition
-and an AI-output boundary. UPL represents this relation using the
-judgment form $\upljudge{\Gamma}{K}{B}{W}$, requiring every
-checked claim to be attached to an explicit boundary, witness chain,
-mapping, check, ruleout procedure, and adjudication status. We
-formalise the framework information-theoretically using conditional
-claim entropy $H(K \mid W, \Gamma, B)$, the data-processing
-inequality, and Fano's lower bound on adjudication error rate. We
-also survey candidate execution conditions --- mixed precision,
-TF32-like tensor formats, deterministic kernels, denormal handling,
-autotuning, and thermal regime --- as domains in which bounded
-warrants may be constructed. In this v0.4 draft we report one
-executed forward instance, \textsc{demo\_06}: a toy binary linear
-classifier under fp32/fp16 execution-precision contrast that yields
-$\sigma=\statuslabel{checked}$ within its stated boundary. This
-instance demonstrates feasibility of the witness discipline for one
-bounded claim. It does not certify hardware, generalise to production
-AI systems, or replace semiconductor test standards. UPL does not
-test whether a chip is good; it adjudicates whether a stated execution
-condition can carry a bounded claim about an AI-output boundary.
+The framework synthesises four philosophical and methodological
+traditions: Toulmin's warrant model, Dewey's warranted assertibility,
+defeasible reasoning in the tradition of Pollock, Dung, and Prakken,
+and Pearl's causal inference. The relevant unit is not the chip,
+runtime, or model in isolation, but the claim-bearing relation
+between a stated execution condition and an AI-output boundary.
+UPL represents this relation using the judgment form
+$\upljudge{\Gamma}{K}{B}{W}$, requiring every checked claim to be
+attached to an explicit boundary, witness chain, mapping, check,
+ruleout procedure, and adjudication status. We formalise the
+framework information-theoretically using conditional claim entropy
+$H(K \mid W, \Gamma, B)$, the data-processing inequality, and Fano's
+lower bound on adjudication error rate. We also survey candidate
+execution conditions --- mixed precision, TF32-like tensor formats,
+deterministic kernels, denormal handling, autotuning, and thermal
+regime --- as domains in which bounded warrants may be constructed.
+This draft reports one executed forward instance, \textsc{demo\_06}:
+a toy binary linear classifier under fp32/fp16 execution-precision
+contrast that yields $\sigma=\statuslabel{checked}$ within its stated
+boundary, and notes two companion witnessed instances in adjacent
+directions: UPL-ICE for input-conditioned execution claims and
+UPL-WARP for agent-routing and payment-gate decisions. All three
+reuse the same judgment form and witness discipline. The instances
+demonstrate feasibility; they do not certify hardware, generalise
+to production AI systems, or replace semiconductor test standards.
+UPL does not test whether a chip is good; it adjudicates whether a
+stated execution condition can carry a bounded claim about an
+AI-output boundary.
 \end{abstract}
 
 \vspace{0.5em}
@@ -187,16 +206,22 @@ traceable, checkable, and bounded.
 The primary contribution of this paper is methodological. We
 introduce a vocabulary --- the bounded-warrant framework --- in
 which execution-condition claims can be stated without overclaim.
-In addition, this draft reports one bounded toy precision-contrast
-instance, \textsc{demo\_06} (Section~\ref{sec:discussion}), whose
-purpose is not to establish general chip-AI propagation but to
-demonstrate that the UPL six-witness discipline can be executed
-end-to-end under a stated boundary. The framework is informed in
-spirit by Tanenbaum's MINIX discipline \citep{tanenbaum1987}:
-small, clean, safe, understandable infrastructure beneath every
-claim.
+The vocabulary is not invented in isolation; it synthesises four
+philosophical and methodological traditions that have, over the past
+century, developed the conceptual scaffolding required to discipline
+such claims (Section~\ref{sec:foundations}). In addition, this draft
+reports one bounded toy precision-contrast instance,
+\textsc{demo\_06} (Section~\ref{sec:discussion}), whose purpose is
+not to establish general chip-AI propagation but to demonstrate that
+the UPL six-witness discipline can be executed end-to-end under a
+stated boundary. The framework is informed in spirit by Tanenbaum's
+MINIX discipline \citep{tanenbaum1987}: small, clean, safe,
+understandable infrastructure beneath every claim.
 
 \paragraph{Outline.}
+Section~\ref{sec:foundations} situates UPL within four philosophical
+traditions: Toulmin's warrant model, Dewey's warranted assertibility,
+defeasible reasoning, and causal inference.
 Section~\ref{sec:scope} fixes the scope: UPL is a warrant layer,
 not a replacement for semiconductor test, reliability, or safety
 standards. Section~\ref{sec:stack} characterises the layered AI
@@ -211,9 +236,157 @@ conditions and calibrations. Section~\ref{sec:reverse} states two
 postulates: reverse inference from observed anomalies to lower-layer
 candidates, and toy-AI feedback as a proposed empirical entry point
 for the reverse direction. Section~\ref{sec:profiles} sketches a
-path from individual demonstrations to UPL test profiles.
+path from individual demonstrations to UPL test profiles, including
+a brief account of the payment-decision function in companion work.
 Section~\ref{sec:discussion} discusses open questions and reports
-one executed forward instance, \textsc{demo\_06}.
+the executed forward instance \textsc{demo\_06} along with two
+companion witnessed instances.
+
+% ============================================================
+\section{Theoretical Foundations}
+\label{sec:foundations}
+
+The bounded-warrant framework introduced in this paper rests on
+four philosophical and methodological traditions that have, over
+the past century, developed precisely the conceptual vocabulary
+needed to discipline claims about evidence, justification, and
+inference. Each tradition contributes one essential element to
+UPL's judgment form. UPL itself does not claim originality in any
+of these traditions; its contribution lies in their synthesis
+applied to a specific contemporary problem.
+
+\subsection{Toulmin's warrant model}
+\label{sec:toulmin}
+
+The term \emph{warrant} in this paper derives from Stephen Toulmin's
+analysis of practical argumentation \citep{toulmin1958}. Toulmin
+showed that every defensible argument has a structure beyond the
+simple syllogism: it includes a \emph{claim} (the conclusion),
+\emph{grounds} (the supporting data), a \emph{warrant} (the
+inferential bridge between grounds and claim), \emph{backing}
+(justification for the warrant), \emph{qualifiers} (degree of
+certainty), and \emph{rebuttals} (conditions under which the
+argument does not hold).
+
+UPL's judgment form
+$\Gamma \vdash K @ B \Leftarrow W : \sigma$
+is, structurally, a formalisation of Toulmin's analysis applied to
+AI-infrastructure claims. The claim $K$ corresponds to Toulmin's
+claim; the witness set $W$ corresponds to the grounds; the
+implication $\Leftarrow$ encodes the warrant; the context $\Gamma$
+and boundary $B$ together constitute the backing and rebuttal
+conditions; and the status $\sigma$ functions as Toulmin's
+qualifier.
+
+The key insight Toulmin contributed was that \emph{every}
+non-trivial argument has these elements, even when they are not
+made explicit. A bounded-warrant framework forces them to be
+explicit. UPL refuses to leave the warrant implicit.
+
+\subsection{Dewey's warranted assertibility}
+\label{sec:dewey}
+
+John Dewey's \emph{Logic: The Theory of Inquiry}
+\citep{dewey1938} rejected ``truth'' as a useful epistemic concept
+for the analysis of practical inquiry. Dewey argued that truth as a
+property attaches to assertions only after the fact, and that
+operational practice requires a different concept:
+\emph{warranted assertibility}. A statement is warrantedly
+assertible when inquiry has produced sufficient evidence to back
+its assertion within the conditions of that inquiry.
+
+This is precisely UPL's interpretation of $\sigma = \statuslabel{checked}$.
+A checked claim is not declared true; it is declared warrantedly
+assertible within boundary $B$, with witnesses $W$, under
+adjudication profile $\Gamma$. Dewey's framing protects against the
+characteristic failure mode of safety claims about AI systems: the
+slide from ``no problem was found'' to ``there is no problem''.
+
+The distinction is operationally significant. A claim adjudicated
+as $\statuslabel{checked}$ under one boundary may be
+$\statuslabel{out\_of\_scope}$ under another. This is not a
+weakness of the framework; it is a feature inherited from Dewey's
+analysis of inquiry as a bounded, situated activity rather than a
+production of universal truths.
+
+\subsection{Defeasible reasoning}
+\label{sec:defeasible}
+
+The distinction between $\statuslabel{failed}$ and $\neg K$, and
+between $\statuslabel{contradicted}$ and $\statuslabel{failed}$,
+descends from the literature on defeasible reasoning. John
+Pollock's \emph{Knowledge and Justification} \citep{pollock1974}
+established that warranted belief is intrinsically defeasible: it
+can be undermined by additional evidence without thereby being
+shown false. Phan Minh Dung's foundational work on argumentation
+frameworks \citep{dung1995} provided a formal semantics for the
+acceptability of arguments under attack relations, distinguishing
+unsupported arguments from rebutted arguments from defeated
+arguments.
+
+Henry Prakken and others have applied defeasible reasoning to
+legal argumentation \citep{prakken2010}, where the distinction
+between \emph{not proven} and \emph{not guilty} mirrors the UPL
+distinction between $\statuslabel{failed}$ and $\statuslabel{contradicted}$.
+A jury that fails to convict does not thereby establish innocence;
+the prosecution simply failed to discharge its burden within the
+trial's evidentiary boundary.
+
+UPL inherits this discipline directly. A claim adjudicated as
+$\statuslabel{failed}$ within boundary $B$ has not been disproved.
+It has been found unsupported by the witness chain $W$ within $B$.
+A separate inquiry, with a separate witness chain, would be
+required to establish $\neg K$. Negation is itself a claim, and
+requires its own warrant.
+
+\subsection{Causal inference}
+\label{sec:causal}
+
+Reverse inference --- the attempt to identify which lower-layer
+execution condition caused an observed AI-output anomaly --- is a
+problem of causal inference under non-identifiability. Judea
+Pearl's framework \citep{pearl2009} formalises the conditions
+under which causal claims can be defended from observational or
+interventional data. Donald Rubin's potential outcomes framework
+\citep{rubin1974} provides a complementary perspective on causal
+identification under controlled comparison.
+
+The reverse-inference postulate (Postulate~\ref{post:reverse})
+stated later in this paper is in spirit a Pearl-style causal
+claim, modulated by the bounded-warrant discipline. The Bayesian
+posterior in \eqref{eq:bayes} is the structural form of a causal
+inference under candidate enumeration; the witness
+$\witness{ruleout}^*$ plays the role of excluding confounding
+alternative explanations. The framework does not extend Pearl's
+calculus, but it inherits his analytical caution about
+non-identifiability: many lower-layer events may produce the same
+observable anomaly, and the ruleout obligation must be
+correspondingly strong.
+
+\subsection{UPL as a modern synthesis}
+\label{sec:synthesis}
+
+UPL does not claim originality in any of the traditions surveyed
+above. Its contribution lies in their synthesis applied to a
+specific contemporary problem: claims about AI-infrastructure
+conditions and their relation to AI-output boundaries. Toulmin
+contributes the warrant structure; Dewey contributes the rejection
+of universal truth in favour of bounded assertibility; Pollock,
+Dung, and Prakken contribute the discipline of defeasible reasoning
+and its formal semantics; Pearl and Rubin contribute the analytical
+framework for causal claims.
+
+The synthesis is not arbitrary. Each element fills a specific need
+that the others do not address. Without Toulmin, the structure of
+warrant-bearing arguments remains implicit and unauditable.
+Without Dewey, statuses degenerate into truth-claims that overrun
+their boundaries. Without defeasible reasoning, the critical
+distinction between failed and disproven collapses. Without causal
+inference, reverse-direction claims lose disciplinary grounding.
+
+The remaining sections of this paper formalise the synthesis and
+report its first executed instance, alongside brief notes on two
+companion witnessed instances in adjacent directions.
 
 % ============================================================
 \section{Scope: UPL Is a Warrant Layer, Not a Chip-Test Replacement}
@@ -347,10 +520,11 @@ adjudication.
 \end{definition}
 
 The judgment is not a proof and not a certification. UPL does not
-validate universal truth; it adjudicates bounded admissibility. The
+validate universal truth; it adjudicates bounded admissibility, in
+the sense developed by Dewey (Section~\ref{sec:dewey}). The
 framework distinguishes a candidate \emph{UPLJudgment} (the input)
-from the adjudicated \emph{UPLDecision} (the output). The same claim
-$K$ may receive different statuses under different boundaries,
+from the adjudicated \emph{UPLDecision} (the output). The same
+claim $K$ may receive different statuses under different boundaries,
 witnesses, profiles, or assumptions.
 
 For claims about how a lower-layer condition affects an upper-layer
@@ -407,7 +581,8 @@ UPL adjudicates each judgment into a status. Table~\ref{tab:logic}
 states the vocabulary, its witness condition, and what may and may
 not follow. The central convention is that \statuslabel{checked}
 means ``supported under this boundary, with these witnesses, according
-to this profile.'' It never means true in general.
+to this profile.'' It never means true in general --- the
+warranted-assertibility interpretation of Section~\ref{sec:dewey}.
 
 \renewcommand{\arraystretch}{1.3}
 \begin{table}[t]
@@ -433,12 +608,13 @@ to this profile.'' It never means true in general.
 \end{table}
 
 The crucial distinction is between \statuslabel{failed},
-\statuslabel{contradicted}, and $\neg K$. A failed check means the
-witness/check relation did not support $K$ inside $B$; it does not
-mean $K$ has been disproved. A contradicted judgment requires a
-positive witness chain for an incompatible claim under the same
-boundary. Negation is itself a claim and requires its own witness
-chain.
+\statuslabel{contradicted}, and $\neg K$, inherited from the
+defeasible-reasoning tradition (Section~\ref{sec:defeasible}). A
+failed check means the witness/check relation did not support $K$
+inside $B$; it does not mean $K$ has been disproved. A contradicted
+judgment requires a positive witness chain for an incompatible claim
+under the same boundary. Negation is itself a claim and requires its
+own witness chain.
 
 % ============================================================
 \section{An Information-Theoretic Formulation}
@@ -683,9 +859,9 @@ where $\witness{exec}$ and $\witness{map}$ can be defined together.
 Model (RIM). The bounded zone between \layer{2} (execution) and
 \layer{3} (representation) is where forward influence
 ($\mathrm{chip/runtime}\to\mathrm{output}$) and reverse influence
-($\mathrm{output}\to\mathrm{chip/runtime}$) are represented as candidate
-named, measurable, causally traceable operators with explicit
-reversibility classes. The L2.5 state
+($\mathrm{output}\to\mathrm{chip/runtime}$) are represented as
+candidate named, measurable, causally traceable operators with
+explicit reversibility classes. The L2.5 state
 $S_{L2.5}(t) = \langle C, H, M, O, R, P, N \rangle$ captures compute,
 hardware/runtime, model, output, reversibility class, provenance,
 and UPL name. Forward and reverse mappings share the same
@@ -836,7 +1012,8 @@ lower-layer execution condition that may have produced it?
 
 We do not assume this is possible in general. We postulate it as a
 research direction, subject to the same bounded-warrant discipline
-as the forward direction.
+as the forward direction, and grounded in the causal-inference
+tradition of Section~\ref{sec:causal}.
 
 \begin{postulate}[Reverse inference]\label{post:reverse}
 Let $K^*$ be a claim of the form ``output anomaly $A$ at \layer{4}
@@ -887,15 +1064,16 @@ information-theoretic challenges are asymmetric. Forward inference
 faces the data-processing inequality \eqref{eq:dpi}: information may
 be lost in propagation, so a strong lower-layer signal may not
 survive to be witnessed at \layer{4}. Reverse inference faces
-non-identifiability: many lower-layer events may produce the same
-observable anomaly, so $\witness{ruleout}^*$ must work harder.
+non-identifiability \citep{pearl2009}: many lower-layer events may
+produce the same observable anomaly, so $\witness{ruleout}^*$ must
+work harder.
 
 Reverse inference connects naturally to causal-inference frameworks
-\citep{pearl2009} and to the literature on information-flow tracking
-in security \citep{kocher2019}. We do not extend the formal
-connection in this paper. We note only that the bounded-warrant
-vocabulary is symmetric in form, and asymmetric only in the
-difficulty of constructing the required witnesses.
+\citep{pearl2009, rubin1974} and to the literature on
+information-flow tracking in security \citep{kocher2019}. We do not
+extend the formal connection in this paper. We note only that the
+bounded-warrant vocabulary is symmetric in form, and asymmetric only
+in the difficulty of constructing the required witnesses.
 
 \subsection{Toy-AI feedback as an empirical entry point}
 \label{sec:toyai}
@@ -1018,6 +1196,64 @@ different machine, either obtain the same boundary-status relation,
 or report a boundary change explicitly. Only then does UPL begin to
 move from paper vocabulary to shared test practice.
 
+\paragraph{Beyond execution conditions: the payment-decision function.}
+While the profiles in Table~\ref{tab:profiles} focus on
+execution-condition claims, the bounded-warrant framework extends
+naturally to other classes of AI-infrastructure claims that require
+adjudication before action. As an illustrative example, an
+agent-routing-and-payment application (UPL-WARP) has been developed
+in companion work \citep{vasen2026warp}, adjudicating claims of the
+form
+\[
+\Gamma_{\text{WARP}} \;\vdash\;
+K_{\text{handoff/payment}} \;@\; B
+\;\Leftarrow\;
+W \;:\; \sigma.
+\]
+Here $K_{\text{handoff/payment}}$ is the claim that an AI agent
+may delegate bounded task $S$ to another agent and authorise
+mock payment $P$; $B$ encodes mandate, budget, allowed agents,
+allowed task types, and payment mode; and $W$ comprises mandate,
+route, quote, contract, check, and ruleout witnesses. A
+deterministic policy engine maps the adjudication status $\sigma$
+to a payment action via a tabulated function $\pi: \Sigma \to
+\mathrm{Actions}$, with typical entries
+\begin{align*}
+\pi(\statuslabel{checked})       &= \texttt{release\_allowed}, \\
+\pi(\statuslabel{bounded})       &= \texttt{human\_approval\_required}, \\
+\pi(\statuslabel{pending\_check})&= \texttt{pending}, \\
+\pi(\statuslabel{inconclusive})  &= \texttt{hold}, \\
+\pi(\statuslabel{failed})        &= \texttt{denied}, \\
+\pi(\statuslabel{contradicted})  &= \texttt{denied}, \\
+\pi(\statuslabel{out\_of\_scope})&= \texttt{denied}, \\
+\pi(\statuslabel{incomplete})    &= \texttt{blocked\_missing\_witnesses}.
+\end{align*}
+The critical architectural property is that the language model
+proposes; UPL adjudicates; the deterministic policy engine
+authorises. The LLM never moves funds or releases payment directly.
+This separation of proposal from authorisation is a structural
+safety property inherited from the bounded-warrant discipline. A
+first witnessed instance (\textsc{demo\_WARP\_01}, $\sigma =
+\statuslabel{checked}$, mock ledger) demonstrates that the
+discipline applies; like the execution-condition instances in this
+paper, it does not generalise beyond its stated boundary.
+
+A second adjacent direction, UPL-ICE for input-conditioned execution
+claims \citep{vasen2026ice}, adjudicates claims of the form
+$\Gamma \vdash K_{I \to E} @ B \Leftarrow W : \sigma$, where $I$ is
+AI input behaviour (prompt length, batch shape, agent-action pattern)
+and $E$ is an execution condition (memory pressure, kernel
+selection, latency regime) induced by that input. The first
+witnessed instance in that direction (\textsc{demo\_ICE\_01},
+$\sigma = \statuslabel{checked}$) tests whether increasing input
+context length beyond a declared threshold induces a memory-pressure
+regime within a stated boundary. Both UPL-WARP and UPL-ICE reuse the
+judgment form, witness structure, and status vocabulary of this
+paper unchanged. They illustrate that the bounded-warrant discipline
+is not specific to hardware or runtime claims; the same formalism
+applies wherever bounded claims about AI-related events require
+adjudication.
+
 % ============================================================
 \section{Discussion}
 \label{sec:discussion}
@@ -1055,6 +1291,24 @@ about large language models, production AI systems, chip defects,
 semiconductor reliability, or hardware behaviour generally. The
 bounding is intentional and follows directly from the framework's
 discipline.
+
+\paragraph{Three witnessed instances across three domains.}
+At the time of this draft, the bounded-warrant discipline has been
+demonstrated in three distinct domains: the L2--L3 bridge
+(\textsc{demo\_06}, $\sigma = \statuslabel{checked}$);
+input-conditioned execution (\textsc{demo\_ICE\_01}, $\sigma =
+\statuslabel{checked}$, see \citep{vasen2026ice}); and agent routing
+with mock payment-gate decisions (\textsc{demo\_WARP\_01}, $\sigma =
+\statuslabel{checked}$, see \citep{vasen2026warp}). Each instance
+was adjudicated under the same judgment form
+$\Gamma \vdash K @ B \Leftarrow W : \sigma$, with the canonical
+six-witness structure, the same status vocabulary, and the same
+bounded-warrant principle. The three instances together suggest
+that UPL's contribution is not specific to hardware-execution
+claims but extends to a wider class of AI-infrastructure
+adjudication problems. The instances are preliminary and do not
+constitute a general theory; they are proof-of-discipline rather
+than proof-of-coverage.
 
 \paragraph{Relation to existing fields.}
 UPL is not an AI safety framework. It is not a chip security
@@ -1116,8 +1370,13 @@ discipline.
 
 This work proceeds in the spirit of small, clean, safe,
 understandable infrastructure that has marked Andrew Tanenbaum's
-contributions to operating systems pedagogy. Errors and infelicities
-remain the author's own.
+contributions to operating systems pedagogy. Its conceptual
+vocabulary draws on a longer tradition: the warrant model of
+Stephen Toulmin, the warranted-assertibility framing of John Dewey,
+the defeasible-reasoning tradition of John Pollock, Phan Minh Dung,
+and Henry Prakken, and the causal-inference framework of Judea
+Pearl and Donald Rubin. Errors and infelicities remain the author's
+own.
 
 % ============================================================
 \bibliography{references}

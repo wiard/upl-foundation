@@ -4,7 +4,7 @@
 % AI-Relevant Execution Claims
 %
 % Author: Wiard Vasen
-% Status: v0.4 draft, exploration
+% Status: v0.4a draft, exploration
 % ============================================================
 
 \documentclass[11pt, a4paper]{article}
@@ -91,7 +91,7 @@
 \large\itshape The L2--L3 Bridge as a Bounded-Warrant Layer\\
 for AI-Relevant Execution Claims}
 \author{Wiard Vasen\\[2pt]\small\normalfont Independent Researcher\\\small\normalfont IJmuiden, the Netherlands}
-\date{\small Draft v0.4 --- May 2026}
+\date{\small Draft v0.4a --- May 2026}
 
 \begin{document}
 
@@ -667,18 +667,23 @@ where $\witness{exec}$ and $\witness{map}$ can be defined together.
 \begin{figure*}[!t]
 \centering
 \IfFileExists{upl_rim_l2_5_model_v2.pdf}{%
-  \includegraphics[width=0.98\textwidth]{upl_rim_l2_5_model_v2.pdf}%
+  \includegraphics[width=0.98\textwidth,height=0.78\textheight,keepaspectratio]{upl_rim_l2_5_model_v2.pdf}%
 }{%
-  \fbox{\parbox{0.92\textwidth}{\centering\vspace{1.2em}
-  Placeholder for \texttt{upl\_rim\_l2\_5\_model\_v2.pdf}.\\
-  Add the figure file to render the full L2.5 Reversible Influence Model.
-  \vspace{1.2em}}}%
+  \IfFileExists{upl_rim_l2_5_model_v2.png}{%
+    \includegraphics[width=0.98\textwidth,height=0.78\textheight,keepaspectratio]{upl_rim_l2_5_model_v2.png}%
+  }{%
+    \fbox{\parbox{0.92\textwidth}{\centering\vspace{1.2em}
+    Placeholder for \texttt{upl\_rim\_l2\_5\_model\_v2.pdf} or
+    \texttt{upl\_rim\_l2\_5\_model\_v2.png}.\\
+    Add the RIM figure file to render the full L2.5 Reversible Influence Model.
+    \vspace{1.2em}}}%
+  }%
 }
 \caption{The \layer{2}.5 Interlayer --- UPL Reversible Influence
 Model (RIM). The bounded zone between \layer{2} (execution) and
 \layer{3} (representation) is where forward influence
-($\mathrm{execution}\to\mathrm{output}$) and reverse influence
-($\mathrm{output}\to\mathrm{execution}$) are represented as candidate
+($\mathrm{chip/runtime}\to\mathrm{output}$) and reverse influence
+($\mathrm{output}\to\mathrm{chip/runtime}$) are represented as candidate
 named, measurable, causally traceable operators with explicit
 reversibility classes. The L2.5 state
 $S_{L2.5}(t) = \langle C, H, M, O, R, P, N \rangle$ captures compute,
